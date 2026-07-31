@@ -2,5 +2,11 @@
   "env": {
     "NEXT_PUBLIC_SUPABASE_URL": "https://svcmybsziaelwwdrnzcv.supabase.co",
     "NEXT_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_nr0cIwCYfzpRhPS8fjJDow_Q20Nxb7o"
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_SUPABASE_URL": "https://svcmybsziaelwwdrnzcv.supabase.co",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_nr0cIwCYfzpRhPS8fjJDow_Q20Nxb7o"
+    }
   }
 }
