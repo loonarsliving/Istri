@@ -81,6 +81,7 @@ export interface Reminder {
   repeat_rule: ReminderRepeat;
   status: ReminderStatus;
   notify_whatsapp: boolean;
+  notify_phone: string | null;
   created_at: string;
   updated_at: string;
 }

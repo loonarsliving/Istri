@@ -144,6 +144,14 @@ export default async function RemindersPage() {
             />
             Kirim juga via WhatsApp
           </label>
+          <div>
+            <label className="text-xs font-medium text-rose-900/70">Nomor WA tujuan</label>
+            <input
+              name="notify_phone"
+              placeholder="Opsional, contoh: 6281234567890 — kosongkan untuk nomor default"
+              className="mt-1 w-full rounded-lg border border-rose-200 px-3 py-2 text-sm outline-none focus:border-rose-400"
+            />
+          </div>
           <button className="w-full rounded-lg bg-rose-600 py-2 text-sm font-medium text-white">Simpan</button>
         </form>
       </div>

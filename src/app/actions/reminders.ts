@@ -18,6 +18,7 @@ export async function createReminder(formData: FormData) {
   const dueAtRaw = String(formData.get("due_at") ?? "");
   const repeatRule = String(formData.get("repeat_rule") ?? "none") as ReminderRepeat;
   const notifyWhatsapp = formData.get("notify_whatsapp") === "on";
+  const notifyPhone = String(formData.get("notify_phone") ?? "").trim() || null;
 
   if (!title) throw new Error("Judul pengingat wajib diisi");
   if (!dueAtRaw) throw new Error("Tanggal & jam wajib diisi");
@@ -30,6 +31,7 @@ export async function createReminder(formData: FormData) {
     due_at: new Date(dueAtRaw).toISOString(),
     repeat_rule: repeatRule,
     notify_whatsapp: notifyWhatsapp,
+    notify_phone: notifyPhone,
   });
   if (error) throw new Error(error.message);
 
@@ -46,6 +48,7 @@ export async function updateReminder(reminderId: string, formData: FormData) {
   const dueAtRaw = String(formData.get("due_at") ?? "");
   const repeatRule = String(formData.get("repeat_rule") ?? "none") as ReminderRepeat;
   const notifyWhatsapp = formData.get("notify_whatsapp") === "on";
+  const notifyPhone = String(formData.get("notify_phone") ?? "").trim() || null;
 
   if (!title) throw new Error("Judul pengingat wajib diisi");
   if (!dueAtRaw) throw new Error("Tanggal & jam wajib diisi");
@@ -59,6 +62,7 @@ export async function updateReminder(reminderId: string, formData: FormData) {
       due_at: new Date(dueAtRaw).toISOString(),
       repeat_rule: repeatRule,
       notify_whatsapp: notifyWhatsapp,
+      notify_phone: notifyPhone,
     })
     .eq("id", reminderId);
   if (error) throw new Error(error.message);
