@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createReminder, markReminderDone, snoozeReminder, deleteReminder } from "@/app/actions/reminders";
 import { formatDateTime } from "@/lib/format";
@@ -49,6 +50,9 @@ export default async function RemindersPage() {
           <form action={snoozeReminder.bind(null, reminder.id, 60)}>
             <button className="text-xs font-medium text-amber-700 underline">Tunda 1 jam</button>
           </form>
+          <Link href={`/reminders/${reminder.id}/edit`} className="text-xs font-medium text-rose-700 underline">
+            Edit
+          </Link>
           <form action={deleteReminder.bind(null, reminder.id)}>
             <button className="text-xs font-medium text-red-500 underline">Hapus</button>
           </form>
