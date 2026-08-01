@@ -16,6 +16,7 @@ export async function createReminder(formData: FormData) {
   const category = String(formData.get("category") ?? "lainnya") as ReminderCategory;
   const dueAtRaw = String(formData.get("due_at") ?? "");
   const repeatRule = String(formData.get("repeat_rule") ?? "none") as ReminderRepeat;
+  const notifyWhatsapp = formData.get("notify_whatsapp") === "on";
 
   if (!title) throw new Error("Judul pengingat wajib diisi");
   if (!dueAtRaw) throw new Error("Tanggal & jam wajib diisi");
@@ -27,6 +28,7 @@ export async function createReminder(formData: FormData) {
     category,
     due_at: new Date(dueAtRaw).toISOString(),
     repeat_rule: repeatRule,
+    notify_whatsapp: notifyWhatsapp,
   });
   if (error) throw new Error(error.message);
 

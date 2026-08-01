@@ -38,6 +38,7 @@ export default async function RemindersPage() {
             <p className={`mt-1 text-xs ${isOverdue ? "text-red-600" : "text-rose-900/50"}`}>
               {formatDateTime(reminder.due_at)} · {CATEGORY_LABEL[reminder.category]}
               {reminder.repeat_rule !== "none" && ` · ulang ${reminder.repeat_rule}`}
+              {reminder.notify_whatsapp && " · WA"}
             </p>
           </div>
         </div>
@@ -131,6 +132,14 @@ export default async function RemindersPage() {
               <option value="yearly">Setiap tahun</option>
             </select>
           </div>
+          <label className="flex items-center gap-2 text-xs font-medium text-rose-900/70">
+            <input
+              name="notify_whatsapp"
+              type="checkbox"
+              className="h-4 w-4 rounded border-rose-300 text-rose-600 focus:ring-rose-400"
+            />
+            Kirim juga via WhatsApp
+          </label>
           <button className="w-full rounded-lg bg-rose-600 py-2 text-sm font-medium text-white">Simpan</button>
         </form>
       </div>
