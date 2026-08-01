@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatRupiah, formatDateTime } from "@/lib/format";
+import { computeDebtRatio, computeEmergencyFund, pickDailyTip } from "@/lib/financial-insights";
+import { FINANCIAL_TIP_SECTIONS } from "@/lib/financial-tips";
 import type { Account, Debt, Reminder, Transaction } from "@/lib/types";
 
 function computeBalance(account: Account, transactions: Transaction[]): number {
@@ -55,6 +57,21 @@ export default async function DashboardPage() {
 
   const overdue = reminderList.filter((r) => new Date(r.due_at) < now);
 
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const debtRatio = computeDebtRatio(txList, monthStart, monthEnd);
+  const emergencyFund = computeEmergencyFund(totalBalance, txList, now);
+  const allTips = FINANCIAL_TIP_SECTIONS.flatMap((s) => s.tips);
+  const dailyTip = pickDailyTip(allTips, now);
+
+  const debtRatioColor =
+    debtRatio.level === "ideal"
+      ? "text-emerald-700 bg-emerald-50 border-emerald-200"
+      : debtRatio.level === "kurang_ideal"
+        ? "text-amber-700 bg-amber-50 border-amber-200"
+        : debtRatio.level === "tidak_ideal"
+          ? "text-red-700 bg-red-50 border-red-200"
+          : "text-rose-900/60 bg-white border-rose-100";
+
   return (
     <div className="space-y-4">
       <section className="rounded-2xl bg-rose-600 p-4 text-white shadow-sm">
@@ -97,6 +114,41 @@ export default async function DashboardPage() {
           <p className="text-xs text-rose-900/60">Total piutang</p>
           <p className="mt-1 text-lg font-semibold text-emerald-600">{formatRupiah(totalPiutang)}</p>
         </Link>
+      </section>
+
+      {debtRatio.level !== "unknown" && (
+        <section className={`rounded-2xl border p-4 ${debtRatioColor}`}>
+          <p className="text-xs font-semibold uppercase opacity-70">Rasio cicilan bulan ini</p>
+          <p className="mt-1 text-lg font-semibold">
+            {((debtRatio.ratio ?? 0) * 100).toFixed(0)}% dari pemasukan
+          </p>
+          <p className="mt-1 text-xs">{debtRatio.message}</p>
+        </section>
+      )}
+
+      {emergencyFund.monthsCovered !== null && (
+        <section className="rounded-2xl bg-white p-4 shadow-sm">
+          <p className="text-xs font-semibold uppercase text-rose-900/50">Dana darurat</p>
+          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-rose-100">
+            <div
+              className="h-full rounded-full bg-rose-500"
+              style={{
+                width: `${Math.min(100, ((emergencyFund.monthsCovered ?? 0) / emergencyFund.targetMonths) * 100)}%`,
+              }}
+            />
+          </div>
+          <p className="mt-2 text-xs text-rose-900/70">{emergencyFund.message}</p>
+        </section>
+      )}
+
+      <section className="rounded-2xl border border-rose-200 bg-white p-4">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold uppercase text-rose-900/50">💡 Tips hari ini</p>
+          <Link href="/wawasan" className="text-xs text-rose-600 underline">
+            Lihat semua
+          </Link>
+        </div>
+        <p className="mt-2 text-sm text-rose-900/80">{dailyTip}</p>
       </section>
 
       <section className="rounded-2xl bg-white p-4 shadow-sm">

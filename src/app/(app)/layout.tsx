@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { href: "/accounts", label: "Rekening", icon: "🏦" },
   { href: "/debts", label: "Utang", icon: "📒" },
   { href: "/reminders", label: "Pengingat", icon: "⏰" },
+  { href: "/wawasan", label: "Wawasan", icon: "📚" },
 ];
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -34,12 +35,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <ReminderWatcher />
 
       <nav className="fixed bottom-0 left-1/2 z-10 w-full max-w-md -translate-x-1/2 border-t border-rose-100 bg-white">
-        <div className="grid grid-cols-5">
+        <div className="grid grid-cols-6">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="flex flex-col items-center gap-0.5 py-2 text-[11px] text-rose-900/70 hover:text-rose-600"
+              className="flex flex-col items-center gap-0.5 py-2 text-[10px] text-rose-900/70 hover:text-rose-600"
             >
               <span className="text-lg leading-none">{item.icon}</span>
               {item.label}

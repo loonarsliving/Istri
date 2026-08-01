@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createDebt, addDebtPayment, markDebtPaidOff } from "@/app/actions/debts";
 import { formatRupiah, formatDate } from "@/lib/format";
+import { suggestDebtPayoffOrder } from "@/lib/financial-insights";
 import type { Account, Debt } from "@/lib/types";
 
 export default async function DebtsPage() {
@@ -23,10 +24,29 @@ export default async function DebtsPage() {
   const accountList = (accounts ?? []) as Account[];
   const active = debtList.filter((d) => d.status === "active");
   const paidOff = debtList.filter((d) => d.status === "paid_off");
+  const { snowball } = suggestDebtPayoffOrder(debtList);
 
   return (
     <div className="space-y-4">
       <h1 className="text-lg font-semibold text-rose-900">Utang & Piutang</h1>
+
+      {snowball.length > 1 && (
+        <section className="rounded-2xl border border-rose-200 bg-white p-4">
+          <p className="text-xs font-semibold uppercase text-rose-900/50">
+            🎯 Saran urutan pelunasan (metode Snowball)
+          </p>
+          <p className="mt-1 text-xs text-rose-900/60">
+            Lunasi dulu yang nominalnya paling kecil untuk momentum, baru lanjut ke yang lebih besar.
+          </p>
+          <ol className="mt-2 space-y-1 text-sm text-rose-900/80">
+            {snowball.map((d, i) => (
+              <li key={d.id}>
+                {i + 1}. {d.counterparty} — {formatRupiah(d.remaining_amount)}
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
 
       <div className="space-y-2">
         {active.length === 0 && <p className="text-sm text-rose-900/50">Belum ada utang/piutang aktif.</p>}
