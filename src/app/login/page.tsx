@@ -14,30 +14,55 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
 
+  function describeError(err: unknown): string {
+    if (err instanceof Error) {
+      const extra = Object.getOwnPropertyNames(err)
+        .filter((k) => k !== "message" && k !== "stack")
+        .map((k) => `${k}=${JSON.stringify((err as unknown as Record<string, unknown>)[k])}`)
+        .join(", ");
+      return `${err.name || "Error"}: ${err.message || "(tanpa pesan)"}${extra ? ` [${extra}]` : ""}`;
+    }
+    try {
+      return `Non-error thrown: ${JSON.stringify(err)}`;
+    } catch {
+      return `Non-error thrown: ${String(err)}`;
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setInfo(null);
 
-    if (mode === "login") {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        setError(error.message);
+    try {
+      if (mode === "login") {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+          setError(describeError(error));
+          setLoading(false);
+          return;
+        }
+        if (!data.session) {
+          setError("Login sukses tapi tidak ada session dikembalikan (cek cookie browser).");
+          setLoading(false);
+          return;
+        }
+        router.replace("/");
+        router.refresh();
+      } else {
+        const { error } = await supabase.auth.signUp({ email, password });
+        if (error) {
+          setError(describeError(error));
+          setLoading(false);
+          return;
+        }
+        setInfo("Akun dibuat! Silakan login.");
+        setMode("login");
         setLoading(false);
-        return;
       }
-      router.replace("/");
-      router.refresh();
-    } else {
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) {
-        setError(error.message);
-        setLoading(false);
-        return;
-      }
-      setInfo("Akun dibuat! Silakan login.");
-      setMode("login");
+    } catch (err) {
+      setError(`EXCEPTION: ${describeError(err)}`);
       setLoading(false);
     }
   }
@@ -73,7 +98,7 @@ export default function LoginPage() {
             />
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-red-600 break-words">{error}</p>}
           {info && <p className="text-sm text-emerald-600">{info}</p>}
 
           <button
