@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { formatRupiah, formatDateTime } from "@/lib/format";
+import { formatRupiah } from "@/lib/format";
 import { computeDebtRatio, computeEmergencyFund, pickDailyTip } from "@/lib/financial-insights";
 import { FINANCIAL_TIP_SECTIONS } from "@/lib/financial-tips";
-import type { Account, Debt, Reminder, Transaction } from "@/lib/types";
+import type { Account, Debt, Transaction } from "@/lib/types";
 
 function computeBalance(account: Account, transactions: Transaction[]): number {
   return transactions.reduce((balance, tx) => {
@@ -21,24 +21,15 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [{ data: accounts }, { data: transactions }, { data: debts }, { data: reminders }] =
-    await Promise.all([
-      supabase.from("istri_accounts").select("*").eq("owner_id", user!.id).eq("archived", false),
-      supabase.from("istri_transactions").select("*").eq("owner_id", user!.id),
-      supabase.from("istri_debts").select("*").eq("owner_id", user!.id).eq("status", "active"),
-      supabase
-        .from("istri_reminders")
-        .select("*")
-        .eq("owner_id", user!.id)
-        .eq("status", "pending")
-        .order("due_at", { ascending: true })
-        .limit(5),
-    ]);
+  const [{ data: accounts }, { data: transactions }, { data: debts }] = await Promise.all([
+    supabase.from("istri_accounts").select("*").eq("owner_id", user!.id).eq("archived", false),
+    supabase.from("istri_transactions").select("*").eq("owner_id", user!.id),
+    supabase.from("istri_debts").select("*").eq("owner_id", user!.id).eq("status", "active"),
+  ]);
 
   const accountList = (accounts ?? []) as Account[];
   const txList = (transactions ?? []) as Transaction[];
   const debtList = (debts ?? []) as Debt[];
-  const reminderList = (reminders ?? []) as Reminder[];
 
   const totalBalance = accountList.reduce((sum, acc) => sum + computeBalance(acc, txList), 0);
 
@@ -54,8 +45,6 @@ export default async function DashboardPage() {
   const totalPiutang = debtList
     .filter((d) => d.direction === "piutang")
     .reduce((s, d) => s + d.remaining_amount, 0);
-
-  const overdue = reminderList.filter((r) => new Date(r.due_at) < now);
 
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
   const debtRatio = computeDebtRatio(txList, monthStart, monthEnd);
@@ -88,22 +77,6 @@ export default async function DashboardPage() {
           </div>
         </div>
       </section>
-
-      {overdue.length > 0 && (
-        <section className="rounded-2xl border border-amber-300 bg-amber-50 p-4">
-          <p className="text-sm font-semibold text-amber-800">
-            {overdue.length} pengingat terlewat / jatuh tempo
-          </p>
-          <ul className="mt-2 space-y-1 text-sm text-amber-900">
-            {overdue.map((r) => (
-              <li key={r.id}>• {r.title} — {formatDateTime(r.due_at)}</li>
-            ))}
-          </ul>
-          <Link href="/reminders" className="mt-2 inline-block text-xs font-medium text-amber-800 underline">
-            Lihat semua pengingat
-          </Link>
-        </section>
-      )}
 
       <section className="grid grid-cols-2 gap-3">
         <Link href="/debts" className="rounded-2xl bg-white p-4 shadow-sm">
@@ -166,26 +139,6 @@ export default async function DashboardPage() {
             <div key={acc.id} className="flex items-center justify-between text-sm">
               <span className="text-rose-900/80">{acc.name}</span>
               <span className="font-medium text-rose-900">{formatRupiah(computeBalance(acc, txList))}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="rounded-2xl bg-white p-4 shadow-sm">
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold text-rose-900">Pengingat terdekat</p>
-          <Link href="/reminders" className="text-xs text-rose-600 underline">
-            Lihat semua
-          </Link>
-        </div>
-        <div className="mt-3 space-y-2">
-          {reminderList.length === 0 && (
-            <p className="text-sm text-rose-900/50">Belum ada pengingat.</p>
-          )}
-          {reminderList.map((r) => (
-            <div key={r.id} className="flex items-center justify-between text-sm">
-              <span className="text-rose-900/80">{r.title}</span>
-              <span className="text-xs text-rose-900/50">{formatDateTime(r.due_at)}</span>
             </div>
           ))}
         </div>
