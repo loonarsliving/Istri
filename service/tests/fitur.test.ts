@@ -88,14 +88,16 @@ describe("pemilihan board (decision-review-policy)", () => {
   it("ringkas 3 seat menurut bidang, naik ke 8 seat bila eskalasi", () => {
     expect(pilihBoard("ganti desain logo dan konten instagram")).toMatchObject({ tingkat: "Ringkas", bidang: "Brand & marketing" });
     expect(pilihBoard("ganti desain logo").seat).toHaveLength(3);
-    expect(pilihBoard("rekrut karyawan baru").seat).toHaveLength(12);
+    expect(pilihBoard("rekrut karyawan baru").seat).toHaveLength(13);
     expect(pilihBoard("persiapan IPO 2030")).toMatchObject({ bidang: "IPO & pasar modal", tingkat: "Standar" });
     expect(pilihBoard("beli kasur", { putusanCfo: "tolak" }).tingkat).toBe("Penuh");
-    expect(pilihBoard("apa strategi kita", { penuh: true }).seat).toHaveLength(12);
+    expect(pilihBoard("apa strategi kita", { penuh: true }).seat).toHaveLength(13);
     expect(pilihBoard("perlu cek kontrak notaris").seat).toEqual(expect.arrayContaining(["legal-compliance", "governance"]));
   });
   it("12 kursi punya lens masing-masing", () => {
-    for (const k of ["governance", "legal-compliance", "people-organization", "capital-markets"] as const) expect(sistemSeat(k, "").length).toBeGreaterThan(800);
+    for (const k of ["governance", "legal-compliance", "people-organization", "capital-markets", "hospitality-manager"] as const) expect(sistemSeat(k, "").length).toBeGreaterThan(800);
+    expect(pilihBoard("chat tamu lambat dibalas resepsionis").seat).toContain("hospitality-manager");
+    expect(pilihBoard("cleaning sering lupa checklist kamar").seat).toContain("hospitality-manager");
   });
   it("lens seat dan format memo masuk ke prompt", () => {
     const s = sistemSeat("cfo-advisor", "KONTEKS");
@@ -186,14 +188,47 @@ describe("memori perusahaan & rapat direksi", () => {
     expect((await proses("advisor lupakan memori 1", d))[0]).toContain("diarsipkan");
     expect((await proses("advisor memori", d))[0]).not.toContain("gaji holding");
   });
-  it("rapat direksi memanggil 12 kursi + chair notulen", async () => {
+  it("rapat kedua membaca notulen bulan lalu; data hospitality & contoh chat hanya ke kursi hospitality", async () => {
+    const { reg } = regPalsu();
+    const sistem: string[] = [];
+    const d = deps(reg, (s) => {
+      sistem.push(s);
+      return s.startsWith("Kamu Chairman") ? "*Tindak lanjut bulan lalu* ...\n*3 langkah bulan depan*: rapikan jadwal patroli\nSYARAT_JSON: []\nMEMORI_JSON: []" : "memo";
+    });
+    d.ambilHospitality = async () => ({
+      tersedia: true,
+      data: {
+        periode: { dari: "2026-11-01", sampai: "2026-11-30" },
+        sumber: {},
+        laporanHarian: { hariDenganLaporan: 28, laporanTerlewat: [{ label: "Patroli", diharapkan: 84, dikirim: 30 }], checklistBelumLengkap: 4, selesaiTanpaVerifikasiFo: 9, keluhanTamu: 1, itemTerlambatMaks: 2 },
+        checklistPerStaf: [{ nama: "Sari", total: 7, perJenis: { cleaning: 7 }, gagalAtauMasalah: 1 }],
+        tugasKamar: { total: 40, selesai: 38, lewatAppVillaTanpaFo: 9, totalBersihUlang: 3, perCleaning: [], perFo: [] },
+        masalah: { total: 0, terbuka: 0, terlambat: 0, tanpaPenanggungJawab: 0, perKategori: {} },
+        pengecekanKamarVilla: { total: 37, perHasil: { siap: 35, maintenance: 2 }, perPengecek: {} },
+        chatTamu: { percakapanAktif: 300, pesanMasuk: 2500, balasanStaf: 1800, balasanOtomatis: 900, medianMenitBalas: 6, p90MenitBalas: 95, tidakDibalas2Jam: 40, perStatusTamu: { prospek: 200 }, perKategoriAi: { harga: 120 }, contohPesanTamu: ["apakah ada kolam renang pribadi?"] },
+        catatan: [],
+      },
+    });
+    await proses("advisor rapat direksi", d);
+    sistem.length = 0;
+    await proses("advisor rapat direksi", d);
+    const seatHosp = sistem.find((s) => s.includes("seat Manager Hospitality AI"))!;
+    const seatCfo = sistem.find((s) => s.includes("seat CFO Advisor"))!;
+    expect(seatHosp).toContain("apakah ada kolam renang pribadi?");
+    expect(seatCfo).not.toContain("apakah ada kolam renang pribadi?");
+    expect(seatCfo).toContain("Patroli 30 dari 84");
+    expect(seatCfo).toContain("rapikan jadwal patroli");
+    expect(seatCfo).not.toContain("ini rapat pertama");
+  });
+
+  it("rapat direksi memanggil 13 kursi + chair notulen", async () => {
     const { db, reg } = regPalsu();
     const panggil: string[] = [];
     const d = deps(reg, (sistem) => (sistem.startsWith("Kamu Chairman") ? "*Kondisi bulan ini* ...\nSYARAT_JSON: []\nMEMORI_JSON: []" : "memo"), panggil);
     expect(kenali("advisor rapat direksi").jenis).toBe("rapat");
     const [n] = await proses("advisor rapat direksi", d);
     expect(n).toContain("Rapat direksi");
-    expect(panggil.filter((p) => p.startsWith("Kamu adalah seat"))).toHaveLength(12);
+    expect(panggil.filter((p) => p.startsWith("Kamu adalah seat"))).toHaveLength(13);
     expect(panggil.some((p) => p.startsWith("Kamu Chairman AI Board Loonars Mahakarya. Susun NOTULEN"))).toBe(true);
     expect(db.dokumen[0].judul).toContain("Rapat direksi");
   });

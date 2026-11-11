@@ -21,6 +21,7 @@ export const SEAT = {
   "legal-compliance": "Hukum, Pajak & Kepatuhan",
   "people-organization": "SDM & Organisasi",
   "capital-markets": "Pasar Modal & IPO",
+  "hospitality-manager": "Manager Hospitality AI",
 } as const;
 export type KodeSeat = keyof typeof SEAT;
 export const SEMUA_SEAT = Object.keys(SEAT) as KodeSeat[];
@@ -32,10 +33,10 @@ const BIDANG: { nama: string; pola: RegExp; seat: [KodeSeat, KodeSeat, KodeSeat]
   { nama: "Tata kelola", pola: /tata kelola|komisaris|audit|governance|pihak berelasi|rups/i, seat: ["governance", "chairman", "cfo-advisor"] },
   { nama: "Hukum & kepatuhan", pola: /hukum|legal|kontrak|pajak|izin|perizinan|notaris|sertifikat|kepatuhan/i, seat: ["legal-compliance", "governance", "cfo-advisor"] },
   { nama: "SDM & organisasi", pola: /karyawan|staf|rekrut|gaji|pecat|phk|manajer|organisasi|tim\b|sdm/i, seat: ["people-organization", "ceo-advisor", "operations-director"] },
-  { nama: "Tamu & pelayanan", pola: /tamu|pelayanan|layanan|review|komplain|check.?in|housekeeping/i, seat: ["consumer-panel", "operations-director", "marketing-director"] },
+  { nama: "Tamu & pelayanan", pola: /tamu|pelayanan|layanan|review|komplain|check.?in|housekeeping|resepsionis|chat/i, seat: ["hospitality-manager", "consumer-panel", "marketing-director"] },
   { nama: "Brand & marketing", pola: /brand|marketing|promosi|iklan|instagram|tiktok|konten|ota|harga kamar|diskon/i, seat: ["marketing-director", "market-intelligence", "consumer-panel"] },
   { nama: "Sistem & teknologi", pola: /sistem|aplikasi|software|teknologi|ai\b|otomasi|website|server/i, seat: ["operations-director", "ceo-advisor", "cfo-advisor"] },
-  { nama: "Operasional & SOP", pola: /operasional|sop|renovasi|perawatan|maintenance|vendor|bahan|konstruksi|bangun/i, seat: ["operations-director", "cfo-advisor", "consumer-panel"] },
+  { nama: "Operasional & SOP", pola: /operasional|sop|checklist|kamar|cleaning|renovasi|perawatan|maintenance|vendor|bahan|konstruksi|bangun/i, seat: ["operations-director", "hospitality-manager", "cfo-advisor"] },
   { nama: "Keuangan", pola: /uang|kas|biaya|rp\b|rp\s?\d|juta|jt\b|miliar|utang|pinjam|investasi|modal|cicil|bayar|beli/i, seat: ["cfo-advisor", "chairman", "investment-advisor"] },
 ];
 const STRATEGI = { nama: "Strategi", seat: ["chairman", "ceo-advisor", "cfo-advisor"] as KodeSeat[] };
@@ -105,7 +106,9 @@ export const SISTEM_CHAIR = [
 export const SISTEM_CHAIR_RAPAT = [
   "Kamu Chairman AI Board Loonars Mahakarya. Susun NOTULEN RAPAT DIREKSI BULANAN untuk founder via WhatsApp dari memo-memo seat. Tujuan jangka panjang: perusahaan siap IPO.",
   "Format WA (tanpa tabel markdown, *tebal* gaya WA, maks ±30 baris):",
-  "*Kondisi bulan ini* (kas & arah dari AI CFO, kutip ID fakta; tanpa angka karangan)",
+  "*Tindak lanjut bulan lalu*: untuk setiap langkah di NOTULEN RAPAT BULAN LALU, nilai ✅ jalan / 🟡 sebagian / ❌ belum — berdasarkan data bulan ini; bila tidak bisa dibuktikan tulis 'belum bisa dibuktikan'. Bila belum ada notulen sebelumnya, tulis 'rapat pertama'.",
+  "*Kondisi bulan ini* (kas & arah dari AI CFO, kutip ID fakta; bandingkan dengan bulan lalu: membaik/memburuk; tanpa angka karangan)",
+  "*Operasional & layanan tamu* (dari RINGKASAN HOSPITALITY [H..]: disiplin checklist staf, kesiapan kamar, waktu balas & tema chat tamu)",
   "*3 penghambat terbesar* perkembangan perusahaan (yang diangkat ≥2 seat dulu)",
   "*Keputusan yang perlu ditinjau / syarat terlambat*",
   "*Kesiapan menuju IPO*: satu kemajuan & satu celah terbesar (syarat resmi BEI/OJK = NEEDS DATA bila belum diriset)",
@@ -165,7 +168,15 @@ export function pisahSyarat(teks: string): { ringkasan: string; syarat: { teks: 
   return { ringkasan: b.sisa.replace(/\n{3,}/g, "\n\n").trim(), syarat, memori };
 }
 
-export async function sidang(topik: string, konteks: string, pilihan: PilihanBoard, tanya: TanyaModel, mode: "keputusan" | "rapat" = "keputusan"): Promise<HasilBoard> {
+export async function sidang(
+  topik: string,
+  konteks: string,
+  pilihan: PilihanBoard,
+  tanya: TanyaModel,
+  mode: "keputusan" | "rapat" = "keputusan",
+  /** Konteks tambahan per kursi (mis. contoh chat tamu hanya untuk Manager Hospitality AI). */
+  ekstra: Partial<Record<KodeSeat, string>> = {},
+): Promise<HasilBoard> {
   const tugas =
     mode === "rapat"
       ? "\n\nIni RAPAT DIREKSI BULANAN, bukan voting keputusan. Ganti format memo menjadi: *Temuan bulan ini* · *Penghambat terbesar menurut lens saya* · *Celah menuju IPO* · *Satu langkah bulan depan (terukur)* · *Yang belum diketahui*."
@@ -173,7 +184,7 @@ export async function sidang(topik: string, konteks: string, pilihan: PilihanBoa
   const memo = await Promise.all(
     pilihan.seat.map(async (seat) => {
       try {
-        const h = await tanya(sistemSeat(seat, konteks) + tugas, `Topik yang dibahas board:\n${topik}`, { percobaan: 1, maksToken: 4096 });
+        const h = await tanya(sistemSeat(seat, ekstra[seat] ? `${konteks}\n${ekstra[seat]}` : konteks) + tugas, `Topik yang dibahas board:\n${topik}`, { percobaan: 1, maksToken: 4096 });
         return { seat, teks: h.teks };
       } catch (e) {
         console.error(`seat ${seat} gagal`, e);

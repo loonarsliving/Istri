@@ -14,7 +14,8 @@ SECTIONS = ("## Instruksi", "## Input", "## Proses", "## Output", "## Batasan")
 SEATS = {"chairman", "ceo-advisor", "cfo-advisor", "investment-advisor", "market-intelligence",
          "consumer-panel", "marketing-director", "operations-director",
          # D-2026-008: kursi menuju IPO
-         "governance", "legal-compliance", "people-organization", "capital-markets"}
+         "governance", "legal-compliance", "people-organization", "capital-markets",
+         "hospitality-manager"}  # D-2026-009
 KB = {
     "company": ["company-profile", "business-model", "company-structure", "financial-position",
                 "strategic-goals", "investment-history"],
@@ -47,7 +48,7 @@ class Repo(unittest.TestCase):
             for s in SECTIONS:
                 self.assertIn(s, text, "%s lacks %s" % (name, s))
 
-    def test_board_has_twelve_seats(self):
+    def test_board_has_thirteen_seats(self):
         seats = {f[:-3] for f in os.listdir(os.path.join(SKILLS, "loonars-board", "seats")) if not f.startswith("_")}
         self.assertEqual(seats, SEATS)
 
@@ -91,7 +92,8 @@ class Repo(unittest.TestCase):
                   "CEO Advisor": "ceo-advisor", "Operations Director": "operations-director", "Consumer Panel*": "consumer-panel",
                   "Marketing Director": "marketing-director", "Market Intelligence": "market-intelligence",
                   "Tata Kelola": "governance", "Hukum/Pajak & Kepatuhan": "legal-compliance",
-                  "SDM & Organisasi": "people-organization", "Pasar Modal & IPO": "capital-markets"}
+                  "SDM & Organisasi": "people-organization", "Pasar Modal & IPO": "capital-markets",
+                  "Manager Hospitality AI": "hospitality-manager"}
         rows = [r for r in seats if not r.strip().startswith("-") and r.strip() != "3 seat"]
         self.assertEqual(len(rows), 11)
         for row in rows:

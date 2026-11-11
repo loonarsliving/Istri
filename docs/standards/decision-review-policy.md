@@ -28,8 +28,8 @@ Semua keputusan dibahas. Yang berbeda hanya kedalamannya:
 | Tingkat | Siapa yang membahas | Waktu/biaya |
 | --- | --- | --- |
 | **Ringkas** | Mentor + 3 seat board paling relevan untuk bidang itu (`/loonars-board --ringkas`) | ± 3 sub-agent |
-| **Standar** | Board lengkap 12 seat (D-2026-008) | 12 sub-agent |
-| **Penuh** | Board lengkap + `/business-feasibility` + konsultasi AI CFO | 12+ sub-agent + simulasi |
+| **Standar** | Board lengkap 13 seat (D-2026-008/009) | 13 sub-agent |
+| **Penuh** | Board lengkap + `/business-feasibility` + konsultasi AI CFO | 13+ sub-agent + simulasi |
 
 Minimal **Ringkas** untuk setiap keputusan. Naik ke **Standar** bila ada
 **salah satu** dari ini:
@@ -52,8 +52,8 @@ tidak boleh menurunkan tingkat yang sudah dipicu kriteria di atas.
 | Keuangan | CFO Advisor, Chairman, Investment Advisor |
 | Tata kelola | Tata Kelola, Chairman, CFO Advisor |
 | SDM & organisasi | SDM & Organisasi, CEO Advisor, Operations Director |
-| Operasional & SOP | Operations Director, CFO Advisor, Consumer Panel* |
-| Tamu & pelayanan | Consumer Panel*, Operations Director, Marketing Director |
+| Operasional & SOP | Operations Director, Manager Hospitality AI, CFO Advisor |
+| Tamu & pelayanan | Manager Hospitality AI, Consumer Panel*, Marketing Director |
 | Brand & marketing | Marketing Director, Market Intelligence, Consumer Panel* |
 | Investor & kemitraan | Investment Advisor, Pasar Modal & IPO, CFO Advisor |
 | Hukum & kepatuhan | Hukum/Pajak & Kepatuhan, Tata Kelola, CFO Advisor |

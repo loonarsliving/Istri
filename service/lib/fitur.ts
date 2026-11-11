@@ -2,6 +2,7 @@ import { ambilFaktaCfo, evaluasiCfo } from "./aicfo";
 import { angkaTakBerdasar } from "./angka";
 import { SEMUA_SEAT, pilihBoard, sidang, type HasilBoard } from "./board";
 import { CONTENT } from "./content.generated";
+import { ambilHospitality, contohChatSebagaiTeks, hospitalitySebagaiTeks, type HasilHospitality } from "./hospitality";
 import { bacaJson, tanyaModel, type TanyaModel } from "./gemini";
 import { MENU, bersihkanAwalan, daftarKeputusan, daftarKeputusanDb, jawab, kumpulkanKonteks, teksKonteks, type DepsMentor } from "./mentor";
 import { KATEGORI_MEMORI, register, type KategoriMemori, type Keputusan, type Register } from "./register";
@@ -14,6 +15,7 @@ import { KATEGORI_MEMORI, register, type KategoriMemori, type Keputusan, type Re
 export interface DepsFitur extends DepsMentor {
   reg: Register;
   hariIni: () => string;
+  ambilHospitality?: (hari?: number) => Promise<HasilHospitality>;
 }
 
 export function depsBawaan(): DepsFitur {
@@ -25,6 +27,7 @@ export function depsBawaan(): DepsFitur {
     tanyaModel,
     daftarKeputusan: () => reg.daftar(),
     daftarMemori: () => reg.memoriDaftar(),
+    ambilHospitality: (hari) => ambilHospitality(hari),
     hariIni: () => new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Jakarta" }),
   };
 }
@@ -237,8 +240,14 @@ async function konfirmasi(id: string, deps: DepsFitur): Promise<string> {
 async function bahas(topik: string, penuh: boolean, keputusan: Keputusan | null, deps: DepsFitur): Promise<string[]> {
   const k = await kumpulkanKonteks(topik, deps);
   const pilihan = pilihBoard(topik, { penuh, putusanCfo: k.evaluasi?.tersedia ? k.evaluasi.putusan : undefined });
-  const konteks = teksKonteks(k, 20000);
-  const h = await sidang(topik, konteks, pilihan, deps.tanyaModel);
+  let konteks = teksKonteks(k, 20000);
+  const ekstra: Partial<Record<(typeof pilihan.seat)[number], string>> = {};
+  if (pilihan.seat.includes("hospitality-manager") && deps.ambilHospitality) {
+    const hosp = await deps.ambilHospitality(30);
+    konteks += `\n=== RINGKASAN HOSPITALITY (30 hari) ===\n${hospitalitySebagaiTeks(hosp)}`;
+    ekstra["hospitality-manager"] = contohChatSebagaiTeks(hosp);
+  }
+  const h = await sidang(topik, konteks, pilihan, deps.tanyaModel, "keputusan", ekstra);
   const idDok = await deps.reg.dokumenSimpan("board", `Sidang ${pilihan.tingkat}: ${topik.split("\n")[0].slice(0, 200)}`, h.dokumen, keputusan?.id);
 
   let penutup: string;
@@ -274,18 +283,46 @@ async function bahas(topik: string, penuh: boolean, keputusan: Keputusan | null,
   );
 }
 
-/** Rapat direksi bulanan (12 kursi) — dipanggil cron tanggal 1 atau "advisor rapat direksi". */
+/** Ringkasan Chairman dari rapat direksi terakhir (pembanding bulan ini). */
+export async function notulenSebelumnya(deps: DepsFitur): Promise<{ id: number; judul: string; dibuat: string; ringkasan: string } | null> {
+  try {
+    const daftar = await deps.reg.dokumenTerbaru(30);
+    const terakhir = daftar.find((d) => d.jenis === "board" && d.judul.startsWith("Rapat direksi"));
+    if (!terakhir) return null;
+    const d = await deps.reg.dokumenAmbil(terakhir.id);
+    if (!d) return null;
+    const ringkasan = (d.isi.split("## Ringkasan Chairman")[1] ?? d.isi).split("## Memo")[0].trim().slice(0, 6000);
+    return { id: d.id, judul: d.judul, dibuat: d.dibuat, ringkasan };
+  } catch (e) {
+    console.error("notulen sebelumnya tidak terbaca", e);
+    return null;
+  }
+}
+
+/** Rapat direksi bulanan (semua kursi) — dipanggil cron tanggal 1 atau "advisor rapat direksi". */
 export async function rapat(deps: DepsFitur): Promise<string[]> {
   const bulan = new Date().toLocaleDateString("id-ID", { timeZone: "Asia/Jakarta", month: "long", year: "numeric" });
   const topik = `Rapat direksi bulanan ${bulan}: tinjau kondisi kas & arah (AI CFO), keputusan dan syarat yang waktunya ditinjau, tiga penghambat terbesar perkembangan Loonars Mahakarya, dan langkah bulan depan menuju kesiapan IPO.`;
-  const k = await kumpulkanKonteks(topik, deps);
+  const [k, hosp, lalu] = await Promise.all([
+    kumpulkanKonteks(topik, deps),
+    deps.ambilHospitality ? deps.ambilHospitality(30) : Promise.resolve<HasilHospitality>({ tersedia: false, catatan: "tidak dikonfigurasi" }),
+    notulenSebelumnya(deps),
+  ]);
   const pilihan = { bidang: "Rapat direksi", tingkat: "Standar" as const, seat: SEMUA_SEAT, alasan: "rapat bulanan" };
-  const h = await sidang(topik, teksKonteks(k, 20000), pilihan, deps.tanyaModel, "rapat");
+  const konteks = [
+    teksKonteks(k, 20000),
+    "=== NOTULEN RAPAT BULAN LALU (bandingkan & nilai tindak lanjutnya) ===",
+    lalu ? `${lalu.judul} (#${lalu.id}, ${lalu.dibuat.slice(0, 10)})\n${lalu.ringkasan}` : "(belum ada — ini rapat pertama)",
+    "=== RINGKASAN HOSPITALITY (30 hari) ===",
+    hospitalitySebagaiTeks(hosp),
+  ].join("\n");
+  const h = await sidang(topik, konteks, pilihan, deps.tanyaModel, "rapat", { "hospitality-manager": contohChatSebagaiTeks(hosp) });
   const idDok = await deps.reg.dokumenSimpan("board", `Rapat direksi ${bulan}`, h.dokumen);
   const usulan = await simpanUsulanMemori(h, idDok, deps);
   const catatan = [
     h.angkaTakBerdasar.length ? "⚠️ Ada angka yang tidak ditemukan di data AI CFO/knowledge base — cek sebelum dipakai." : "",
     !k.cfo.tersedia ? "ℹ️ AI CFO sedang tidak terbaca — kondisi kas belum dipakai." : "",
+    !hosp.tersedia ? "ℹ️ Data operasional villa sedang tidak terbaca — Manager Hospitality AI belum memakai data." : "",
   ].filter(Boolean);
   return bagiPesan([`🏛️ *Rapat direksi — ${bulan}* (${SEMUA_SEAT.length} kursi)`, "", h.ringkasan, ...catatan, usulan, "", `Notulen & memo lengkap: *advisor detail ${idDok}*`].join("\n"));
 }
