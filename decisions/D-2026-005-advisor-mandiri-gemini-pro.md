@@ -30,6 +30,8 @@ Model global dinaikkan (ditolak); tetap di Claude Code (ditolak founder); Google
 4. Batas belanja **Rp 200.000/bulan** di akun API; diuji AI CFO sebelum kunci diaktifkan.
 5. Founder membuat akun API berbayar & kunci; Claude mengerjakan sisanya.
 6. Syarat board (chair summary) berlaku.
+7. **Lokasi (dipilih founder, 2026-11-11): Istri menjadi layanan advisor sendiri** — API + halaman /advisor + data sendiri; kunci Gemini Pro hanya ada di Istri. MK Connect hanya meneruskan pesan WA "advisor" ke Istri dan mengirim balasannya (pola villa memakai WA MK Connect). AI MK Connect tidak tersentuh.
+8. **Data (dipilih founder, 2026-11-11): tumpang di database MKH Property** (`gluoioi…`), tabel/fungsi `advisor_*` tersendiri, diakses lewat rahasia advisor (tanpa service-role key), Rp 0 tambahan. Bukan project Supabase baru (±Rp 160 rb/bulan, ASSUMPTION).
 ## Expected outcome
 ≤ 11 Des 2026: tahap 1 live, ≥ 1 keputusan nyata tercatat via WA; biaya API ≤ Rp 200.000/bulan; nol regresi WA karyawan. Dicek 11 Feb 2027.
 ## Actual outcome

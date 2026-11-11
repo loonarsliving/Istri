@@ -26,8 +26,9 @@ Sumber kebenaran: `docs/00-master-instruction.md`. Baca sebelum bekerja.
   (`docs/standards/output-format.md`).
 - Angka keuangan aktual Loonars = AI CFO MKH Property
   (`docs/standards/consult-ai-cfo.md`). Jangan menghitung ulang angka aktual.
-- Repo villa dan Mkhsistem hanya dibaca. mkh-properti hanya diubah untuk endpoint
-  advisor `/api/cfo/advisor` (disetujui founder, PR #61/#63) lewat PR + CI. Hormati aturan di
+- Repo villa hanya dibaca. Perubahan di mkh-properti & Mkhsistem hanya untuk layanan
+  advisor (D-2026-005: endpoint/tabel `advisor_*` di MKH Property; penerus WA "advisor" di
+  MK Connect), selalu lewat PR + CI + persetujuan founder. AI MK Connect yang ada tidak diubah. Hormati aturan di
   `CLAUDE.md` masing-masing (mis. harga villa butuh persetujuan owner).
 - Repo ini **publik**: jangan commit angka keuangan aktual, nama pembeli/
   investor, rekening, NIK, telepon. Pakai `private/` selama sesi, lalu **simpan
