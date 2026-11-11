@@ -8,7 +8,7 @@
 export const CONFIG = {
   geminiApiKey: process.env.GEMINI_API_KEY ?? "",
   /** Model kuat untuk semua pekerjaan advisor. Diverifikasi lewat /api/advisor/health. */
-  model: process.env.ADVISOR_GEMINI_MODEL ?? "gemini-3.1-pro",
+  model: process.env.ADVISOR_GEMINI_MODEL ?? "gemini-3.1-pro-preview",
   /** Cadangan bila model kuat gagal/sibuk — tetap memakai kunci advisor. */
   fallbackModel: process.env.ADVISOR_FALLBACK_MODEL ?? "gemini-3.1-flash-lite",
   thinkingLevel: (process.env.ADVISOR_THINKING_LEVEL ?? "HIGH") as "MINIMAL" | "LOW" | "MEDIUM" | "HIGH",
