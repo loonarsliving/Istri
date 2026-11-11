@@ -86,7 +86,7 @@ export function sistemSeat(seat: KodeSeat, konteks: string): string {
 }
 
 const ATURAN_JSON = [
-  "Di akhir, DUA baris JSON (masing-masing satu baris):",
+  "Di akhir, DUA baris JSON (masing-masing satu baris), WAJIB diawali label persis 'SYARAT_JSON:' dan 'MEMORI_JSON:' — tanpa tanda bintang/kode:",
   "SYARAT_JSON: array syarat [{\"teks\":..., \"tenggat\":\"YYYY-MM-DD\"|null}] (kosong bila tidak ada).",
   "MEMORI_JSON: maks 3 FAKTA baru tentang Loonars Mahakarya yang terungkap di sidang ini dan layak diingat direksi (model bisnis, beban, hambatan, pelajaran, tujuan, aturan) — bukan opini/rekomendasi, bukan angka karangan, jangan mengulang MEMORI PERUSAHAAN yang sudah ada: [{\"kategori\":\"model_bisnis|beban|hambatan|pelajaran|tujuan|aturan|lain\", \"teks\":...}].",
 ].join("\n");
@@ -137,7 +137,8 @@ export interface HasilBoard {
 }
 
 function barisJson(teks: string, label: string): { sisa: string; data: unknown[] } {
-  const re = new RegExp(`^\\s*${label}:\\s*(\\[.*\\])\\s*$`, "m");
+  // Toleran terhadap *tebal*/`kode` di sekitar label dan titik dua opsional.
+  const re = new RegExp(`^\\s*[*_\`]*${label}[*_\`]*\\s*:?\\s*[*_\`]*\\s*(\\[.*\\])\\s*$`, "im");
   const m = re.exec(teks);
   if (!m) return { sisa: teks, data: [] };
   let data: unknown[] = [];
@@ -150,10 +151,42 @@ function barisJson(teks: string, label: string): { sisa: string; data: unknown[]
   return { sisa: teks.replace(m[0], ""), data };
 }
 
-/** Pisahkan baris SYARAT_JSON & MEMORI_JSON dari ringkasan chair. */
+/**
+ * Chair kadang menulis array JSON tanpa label (rapat pertama 2026-11-11).
+ * Baris yang seluruhnya array objek dikenali dari isinya: punya "kategori"
+ * → memori; punya "tenggat" → syarat. Baris itu dibuang dari ringkasan WA.
+ */
+function arrayTanpaLabel(teks: string): { sisa: string; syarat: unknown[]; memori: unknown[] } {
+  const syarat: unknown[] = [];
+  const memori: unknown[] = [];
+  const sisa = teks
+    .split("\n")
+    .filter((baris) => {
+      const t = baris.trim().replace(/^```(?:json)?|```$/g, "").trim();
+      if (!t.startsWith("[") || !t.endsWith("]")) return true;
+      try {
+        const v = JSON.parse(t) as unknown;
+        if (!Array.isArray(v) || !v.length || !v.every((x) => x && typeof x === "object")) return true;
+        const objek = v as Record<string, unknown>[];
+        if (objek.some((x) => "kategori" in x)) memori.push(...objek);
+        else if (objek.some((x) => "tenggat" in x)) syarat.push(...objek);
+        else return true;
+        return false;
+      } catch {
+        return true;
+      }
+    })
+    .join("\n");
+  return { sisa, syarat, memori };
+}
+
+/** Pisahkan syarat & usulan memori (berlabel atau tidak) dari ringkasan chair. */
 export function pisahSyarat(teks: string): { ringkasan: string; syarat: { teks: string; tenggat: string | null }[]; memori: UsulanMemori[] } {
-  const a = barisJson(teks, "SYARAT_JSON");
-  const b = barisJson(a.sisa, "MEMORI_JSON");
+  const a0 = barisJson(teks, "SYARAT_JSON");
+  const b0 = barisJson(a0.sisa, "MEMORI_JSON");
+  const c = arrayTanpaLabel(b0.sisa);
+  const a = { data: [...a0.data, ...c.syarat] };
+  const b = { sisa: c.sisa, data: [...b0.data, ...c.memori] };
   const syarat = (a.data as { teks?: unknown; tenggat?: unknown }[])
     .filter((x) => typeof x?.teks === "string" && x.teks.length >= 3)
     .slice(0, 10)

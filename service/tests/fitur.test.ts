@@ -111,6 +111,12 @@ describe("pemilihan board (decision-review-policy)", () => {
     expect(r.syarat).toEqual([{ teks: "Uji 1 kamar dulu", tenggat: "2026-12-01" }]);
     const r2 = pisahSyarat('*Putusan*: APPROVE\nSYARAT_JSON: []\nMEMORI_JSON: [{"kategori":"beban","teks":"Gaji holding beban tetap terbesar"},{"kategori":"aneh","teks":"Founder memutuskan sendiri"}]');
     expect(r2.ringkasan).toBe("*Putusan*: APPROVE");
+    const r3 = pisahSyarat('*Confidence*: High\n\n[{"teks":"Hentikan belanja unit tanpa pembeli","tenggat":"2026-12-01"}]\n[{"kategori":"hambatan","teks":"Data keuangan belum siap audit"}]\n\n');
+    expect(r3.ringkasan).toBe("*Confidence*: High");
+    expect(r3.syarat).toEqual([{ teks: "Hentikan belanja unit tanpa pembeli", tenggat: "2026-12-01" }]);
+    expect(r3.memori).toEqual([{ kategori: "hambatan", teks: "Data keuangan belum siap audit" }]);
+    const r4 = pisahSyarat("*Putusan*: OK\n**MEMORI_JSON**: [{\"kategori\":\"beban\",\"teks\":\"Utang gaji cabang lama\"}]");
+    expect(r4).toMatchObject({ ringkasan: "*Putusan*: OK", memori: [{ kategori: "beban", teks: "Utang gaji cabang lama" }] });
     expect(r2.memori).toEqual([{ kategori: "beban", teks: "Gaji holding beban tetap terbesar" }, { kategori: "lain", teks: "Founder memutuskan sendiri" }]);
   });
 });
