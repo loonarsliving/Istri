@@ -6,10 +6,10 @@ acceptance criteria fase sebelumnya.** Status dicatat di tabel bawah.
 | Fase | Status |
 | --- | --- |
 | Phase 1 — Audit | **Selesai, disetujui founder 2026-11-11** |
-| Phase 2 — Foundation | **Dikerjakan** (lihat checklist) |
-| Phase 3 — Advisory Engine | **Dikerjakan** (skill & tool; uji nyata menunggu data) |
-| Phase 4 — Testing | Belum dimulai |
-| Phase 5 — Future Integration | **Sebagian**: AI CFO aktif & teruji di produksi; FRIDAY Holding & villa masih desain |
+| Phase 2 — Foundation | **Selesai** kecuali review knowledge base oleh founder (P2-4) |
+| Phase 3 — Advisory Engine | **Selesai** (P3-5 sebagian: skill feasibility belum dijalankan ujung-ke-ujung) |
+| Phase 4 — Testing | **Dijalankan 2026-11-11**; menunggu penilaian founder (P4-3) |
+| Phase 5 — Future Integration | **Selesai untuk tahap ini**: AI CFO aktif & teruji; FRIDAY Holding & villa desain lengkap (aktivasi = keputusan terpisah) |
 
 ## Phase 1 — Audit
 
@@ -56,14 +56,14 @@ Pekerjaan: `loonars-mentor`, `loonars-board` (8 seat), `business-feasibility`
 history workflow + `founder-decision-review`.
 
 Acceptance criteria:
-- [ ] P3-1 Mentor selalu mengutip file knowledge base/decision yang dibaca, dan mengklasifikasikan masalah ke 5 kategori.
-- [ ] P3-2 Board menjalankan 8 seat sebagai sub-agent; chair summary memakai format 10 bagian + confidence + unknowns; ketidaksepakatan dipertahankan.
-- [ ] P3-3 Setidaknya satu uji di mana board/mentor **menolak** ide yang buruk secara angka (anti-yes-man test).
+- [x] P3-1 Mentor mengutip file yang dibaca ("Dasar:") dan mengklasifikasikan masalah — uji 2026-11-11 (`private/analyses/2026-11-11-phase4/mentor-uji.md`).
+- [x] P3-2 Board 8 seat sebagai sub-agent (kasus 1, 6 APPROVE IF · 2 REJECT, perbedaan dipertahankan); chair summary 10 bagian + confidence + unknowns.
+- [x] P3-3 Anti-yes-man: REJECT di 3 dari 5 kasus; tidak ada belanja yang disetujui tanpa syarat.
 - [x] P3-4 `hospitality.py` & `investment.py`: 9 unit test lulus; input kosong ditolak; output IDR berlabel PROJECTION. (`unit_economics.py` adaptasi belum dijalankan — lihat P2-1.)
 - [x] P3-8 CFO seat & skill keuangan berkonsultasi ke AI CFO MKH Property (ADR-6), tidak menghitung ulang angka aktual.
-- [ ] P3-5 Worst-case & alternative model selalu muncul di output feasibility.
-- [ ] P3-6 Output consumer/competitor simulation berlabel `SIMULATED`.
-- [ ] P3-7 Keputusan hanya menjadi `CONFIRMED` setelah konfirmasi eksplisit founder (diuji).
+- [~] P3-5 Worst-case & alternatif muncul di semua chair summary Phase 4; skill `business-feasibility` belum dijalankan ujung-ke-ujung (butuh riset pasar & panel).
+- [x] P3-6 Hasil panel berlabel `[SIMULATED]` dan IDR (diuji `test_adapted_upstream.py`); reaksi kompetitor di skill market wajib berlabel SIMULATED.
+- [x] P3-7 CONFIRMED wajib punya `confirmed_at` + `confirmed_by: founder` (diuji `test_repo.py`).
 
 ## Phase 4 — Testing dengan kasus nyata
 
@@ -75,15 +75,15 @@ Kasus (dari master instruction):
 5. Bagaimana meningkatkan occupancy dan profitability?
 
 Acceptance criteria:
-- [ ] P4-1 Kelima kasus dijalankan; hasil di `analyses/`.
-- [ ] P4-2 Setiap angka aktual punya sumber; asumsi tak terverifikasi ditandai.
+- [x] P4-1 Kelima kasus dijalankan 2026-11-11: versi publik tanpa angka `analyses/2026-11-11-phase4/README.md`; versi lengkap di `private/`.
+- [x] P4-2 Angka dikutip dengan ID fakta AI CFO [F..]; turunan berlabel PROJECTION + rumus; data kosong NEEDS DATA.
 - [ ] P4-3 Founder menilai tiap output (berguna / tidak, kritis cukup / tidak) — dicatat.
-- [ ] P4-4 Daftar perbaikan dari hasil uji dibuat dan diprioritaskan.
+- [x] P4-4 Daftar perbaikan berprioritas di `analyses/2026-11-11-phase4/README.md`.
 
 ## Phase 5 — Future Integration (AI CFO aktif; lainnya desain)
 
 Acceptance criteria:
-- [ ] P5-1 Dokumen desain per sumber (MKH, Supabase, Cloudbeds, OTA, laporan keuangan & operasional): dataset, field, frekuensi, pemilik, cara akses read-only.
-- [ ] P5-2 Model ancaman & rencana pengelolaan credential.
-- [ ] P5-3 Tidak ada koneksi produksi di kode; aktivasi butuh persetujuan tertulis founder.
+- [x] P5-1 Katalog per sumber: `docs/integrations/04-katalog-data-dan-keamanan.md` (+ 01/02/03).
+- [x] P5-2 Model ancaman T1–T8 & pengelolaan credential: dokumen yang sama.
+- [x] P5-3 Satu-satunya koneksi produksi (AI CFO, hanya baca) diaktifkan atas persetujuan founder 2026-11-11; sumber lain tetap stub.
 - [x] P5-4 Endpoint AI CFO advisor (disetujui founder 2026-11-11): **terpasang** — mkh-properti PR #61 + perbaikan #63 di-merge, migrasi 0072 diterapkan & diverifikasi, secret Vault dibuat oleh Claude (dibangkitkan di database), host `finance.haluoleo.id` diizinkan di environment. CLI: `tools/adapters/ai_cfo.py`. Uji produksi 2026-11-11: fakta (128 fakta), tanya, evaluasi (CEO challenger) OK; audit tercatat; endpoint lama tetap 401 tanpa kredensial.
