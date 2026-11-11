@@ -1,58 +1,39 @@
-# Catatanku
+# Loonars AI Advisor
 
-Aplikasi web (PWA installable) untuk mencatat keuangan, utang/piutang, dan
-pengingat aktivitas sehari-hari. Dibangun untuk pemakaian pribadi (satu akun),
-supaya mudah dipakai dan mengingatkan hal-hal yang sering terlupa.
+Virtual Board of Directors, Business Mentor, Strategic Advisor, dan Business
+Intelligence Assistant untuk founder Loonars.
 
-## Fitur
+> **Status: Phase 1 (Audit) selesai — menunggu review founder.**
+> Belum ada kode advisory engine. Sesuai master instruction, implementasi
+> dimulai setelah audit dan arsitektur disetujui.
 
-- **Rekening & saldo** — catat beberapa rekening (tunai, bank, e-wallet) dan
-  lihat saldo tiap rekening otomatis terhitung dari transaksi.
-- **Transaksi** — pemasukan, pengeluaran, dan transfer antar rekening, dengan
-  kategori bebas.
-- **Utang & piutang** — catat siapa yang berutang ke siapa, cicilan/pelunasan,
-  dan jatuh temponya otomatis dibuatkan pengingat.
-- **Pengingat** — pengingat umum (aktivitas harian, tagihan, dll) dengan opsi
-  berulang (harian/mingguan/bulanan/tahunan), snooze, dan notifikasi browser
-  saat jatuh tempo ketika app dibuka (PWA push berbasis `Notification` API).
+## Dokumen
 
-## Stack
+| Dokumen | Isi |
+| --- | --- |
+| [`docs/00-master-instruction.md`](docs/00-master-instruction.md) | Instruksi utama dari founder (sumber kebenaran). |
+| [`docs/phase-1/01-audit-founder-skill.md`](docs/phase-1/01-audit-founder-skill.md) | Audit repo upstream `founder-skill`: skill, tool, lisensi, gap. |
+| [`docs/phase-1/02-architecture.md`](docs/phase-1/02-architecture.md) | Arsitektur teknis + keputusan arsitektur (ADR) dengan trade-off. |
+| [`docs/phase-1/03-roadmap.md`](docs/phase-1/03-roadmap.md) | Roadmap Phase 1–5 dan acceptance criteria. |
+| [`docs/phase-1/04-dependencies-and-risks.md`](docs/phase-1/04-dependencies-and-risks.md) | Dependencies dan risk register. |
+| [`docs/phase-1/05-open-questions.md`](docs/phase-1/05-open-questions.md) | Pertanyaan dan data yang dibutuhkan dari founder. |
 
-- Next.js 16 (App Router) + TypeScript + Tailwind CSS
-- Supabase (Postgres + Auth) — tabel diberi prefix `istri_` dan diisolasi
-  lewat Row Level Security (`owner_id = auth.uid()`) karena project Supabase
-  ini dipakai bersama sistem lain.
-- PWA: `public/manifest.json` + `public/sw.js` (installable ke home screen,
-  offline shell sederhana).
+## Upstream
 
-## Menjalankan secara lokal
+Dibangun di atas [founder-skill](https://github.com/Jakeschincariol/founder-skill)
+oleh Jake Schincariol (MIT License, commit `fd9385b`). Upstream tidak diubah.
+Atribusi dan teks lisensi akan disertakan saat skill di-vendor (Phase 2).
+Proyek ini tidak berafiliasi dengan upstream maupun tokoh yang framework-nya
+diringkas oleh upstream.
 
-```bash
-npm install
-npm run dev
-```
+## Catatan riwayat repo
 
-Buat file `.env.local` (lihat `.env.example`) berisi:
+Repo ini sebelumnya berisi aplikasi **Catatanku**. Aplikasi itu tidak dihapus
+dari Git: masih utuh di branch `claude/reminder-finance-app-yveciz` dan di
+riwayat commit. Jangan merge branch Loonars AI Advisor ke branch tersebut.
 
-```
-NEXT_PUBLIC_SUPABASE_URL=...
-NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-```
+## Bukan nasihat profesional
 
-Skema database ada di `supabase/migrations/0001_istri_app.sql`.
-
-## Integrasi WhatsApp (Whacenter) — belum aktif
-
-Kolom `notify_whatsapp` sudah disiapkan di tabel `istri_reminders` untuk
-integrasi selanjutnya dengan [Whacenter](https://whacenter.com/). Setelah ada
-device/API key Whacenter:
-
-1. Simpan `WHACENTER_DEVICE_ID` & endpoint API sebagai env var server-side.
-2. Buat cron job (mis. Supabase Edge Function + `pg_cron`, atau route API +
-   scheduler eksternal) yang query `istri_reminders` dengan `due_at <= now()`
-   dan `notify_whatsapp = true`, lalu POST ke API Whacenter untuk kirim pesan
-   ke nomor WhatsApp istri.
-3. Tandai reminder terkirim supaya tidak dobel kirim.
-
-Untuk saat ini, pengingat tetap muncul sebagai notifikasi browser (in-app)
-selama PWA di-install dan izin notifikasi diberikan.
+Output sistem ini adalah analisis pendukung keputusan, bukan nasihat finansial,
+hukum, investasi, atau pajak. Hasil simulasi adalah data sintetis, bukan
+prediksi pasti.
