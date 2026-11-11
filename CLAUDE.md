@@ -12,6 +12,8 @@ Sumber kebenaran: `docs/00-master-instruction.md`. Baca sebelum bekerja.
 - Integrasi data hanya read-only; jangan menyentuh sistem produksi MKH, Villa,
   Supabase, Cloudbeds, atau OTA tanpa persetujuan tertulis founder.
 - Keputusan baru berstatus `CONFIRMED` hanya setelah founder mengonfirmasi.
+- **Semua keputusan founder dibahas** (D-2026-004), di bidang apa pun; kedalaman
+  menurut `docs/standards/decision-review-policy.md`. Jangan pernah bilang "langsung saja".
 - Jangan mengubah repo upstream `founder-skill`; pertahankan atribusi MIT.
 - Analisis strategis memakai format 10 bagian + confidence level + unknowns
   (`docs/standards/output-format.md`).

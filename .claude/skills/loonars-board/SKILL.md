@@ -8,7 +8,7 @@ description: >-
   IF / REJECT, lalu chair summary 10 bagian. CFO Advisor memakai AI CFO MKH
   Property. Pakai saat founder bilang "bawa ke board", "uji keputusan ini",
   "apa kata board", "pressure-test", atau untuk keputusan besar.
-argument-hint: "<keputusan/ide> [--quick] [--seats chairman,cfo,...]"
+argument-hint: "<keputusan/ide> [--ringkas | --standar | --penuh] [--seats chairman,cfo,...]"
 ---
 
 # loonars-board
@@ -38,8 +38,14 @@ yang semua setuju tidak bekerja. Pertahankan ketidaksepakatan.
    percakapan): konteks Loonars yang relevan, proposal founder apa adanya,
    angka berlabel + sumber, apa yang belum diketahui, pertanyaan yang harus
    dijawab board. Jangan masukkan opini Anda. Jangan masukkan data pribadi.
-3. Pilih seat: default 8; `--quick` = Chairman + CFO + satu seat paling
-   relevan; `--seats` = daftar eksplisit. Seat **Consumer Panel** tidak
+3. Pilih tingkat dan seat sesuai `docs/standards/decision-review-policy.md`.
+   **Semua keputusan founder dibahas board**, termasuk yang kecil dan yang
+   bukan soal uang (SDM, operasional, tamu, brand, hukum, sistem).
+   `--ringkas` = 3 seat dari tabel bidang di kebijakan; default/`--standar` =
+   8 seat; `--penuh` = 8 seat + `/business-feasibility` + AI CFO;
+   `--seats` = daftar eksplisit. Bila kriteria eskalasi terpenuhi, naikkan
+   tingkat dan katakan alasannya; jangan pernah menurunkan tingkat yang dipicu.
+   (`--quick` = alias `--ringkas`.) Seat **Consumer Panel** tidak
    beropini sendiri: ia membaca `panel/results.md` jika ada, kalau tidak
    menyatakan "panel belum dijalankan" dan menyarankan `/loonars-consumer --quick`.
 4. Dalam SATU pesan, jalankan satu sub-agent per seat (Agent tool,
@@ -65,4 +71,6 @@ yang semua setuju tidak bekerja. Pertahankan ketidaksepakatan.
 - Angka hanya dari AI CFO, tool, atau input berlabel. Seat tidak boleh
   mengarang market size, harga kompetitor, atau biaya.
 - Board tidak memutuskan. Founder memutuskan.
-- Biaya: 8 sub-agent per sidang; sebutkan ke founder sebelum sidang penuh.
+- Biaya: Ringkas ± 3 sub-agent, Standar 8; sebutkan tingkat & alasannya
+  sebelum sidang. Tingkat Ringkas tetap memakai format chair summary, cukup
+  lebih pendek per bagian.

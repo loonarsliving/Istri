@@ -9,7 +9,7 @@ Jawaban di bawah dibutuhkan sebelum / selama Phase 2. Jangan diisi oleh AI.
 3. ~~Nama repo~~ — tetap `Istri`, rename setelah selesai.
 3b. ~~Izin eksekusi kode upstream~~ — diizinkan 2026-11-11; tes lulus.
 3c. ~~Endpoint advisor~~ — disetujui dengan syarat tidak merusak sistem; patch siap. **Siapa yang memasang?** (butuh akses push ke mkh-properti + menerapkan migrasi + membuat secret Vault).
-3d. **Batas keputusan wajib ke board**: nominal berapa?
+3d. ~~Batas keputusan wajib ke board~~ — semua keputusan dibahas (D-2026-004, `docs/standards/decision-review-policy.md`).
 4. **Lisensi kode Loonars**: proprietary (rekomendasi) atau lainnya?
 5. **Mata uang & bahasa**: IDR sebagai default? Output dalam Bahasa Indonesia,
    Inggris, atau campuran?

@@ -43,10 +43,12 @@ Sebutkan file yang benar-benar dibaca di bagian akhir jawaban ("Dasar:").
    alasan dan data apa yang membuktikan/menggugurkannya.
 3. **Pola masa lalu**: apakah ada keputusan serupa di `decisions/`? Bagaimana
    expected vs actual-nya? Jika belum ada outcome tercatat, sebutkan.
-4. **Tentukan jalur**:
-   - pertanyaan sederhana → jawab langsung (format ringkas);
-   - keputusan besar (uang > batas yang ditetapkan founder, ekspansi,
-     fundraising, perubahan model bisnis) → sarankan `/loonars-board`;
+4. **Tentukan jalur** (`docs/standards/decision-review-policy.md`):
+   - pertanyaan yang bukan keputusan → jawab langsung (format ringkas);
+   - **setiap keputusan, sekecil apa pun dan di bidang apa pun** → wajib
+     dibahas: tentukan bidang dan tingkat (Ringkas / Standar / Penuh) dari
+     kriteria kebijakan, sebutkan alasannya, lalu jalankan `/loonars-board`
+     dengan tingkat itu. Jangan pernah menjawab "langsung saja";
    - ide baru → `/business-feasibility`;
    - angka kas/laba/kewajiban → konsultasi AI CFO dulu.
 5. Untuk analisis strategis gunakan `docs/standards/output-format.md`.

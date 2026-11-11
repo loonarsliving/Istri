@@ -8,6 +8,7 @@ profesional. [ASSUMPTION · founder · 2026-11-11 · docs/00-master-instruction.
 
 - NEEDS DATA: tujuan 1 tahun (2027) terukur — pemilik: founder.
 - NEEDS DATA: tujuan 3 dan 5 tahun.
-- NEEDS DATA: batas risiko (kas minimum yang dijaga, maksimal utang, nominal keputusan yang wajib ke board).
+- NEEDS DATA: batas risiko (kas minimum yang dijaga, maksimal utang).
+- Tata kelola keputusan: semua keputusan dibahas advisor, kedalaman bertingkat. [ACTUAL · keputusan founder 2026-11-11 · D-2026-004]
 
 Jalankan `/strategic-planning 1y` untuk menyusunnya bersama founder.

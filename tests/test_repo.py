@@ -78,6 +78,24 @@ class Repo(unittest.TestCase):
                 for pat in SECRET_PATTERNS:
                     self.assertIsNone(pat.search(text), "possible secret in %s" % p)
 
+    def test_every_decision_is_reviewed_policy(self):
+        policy = read(os.path.join(ROOT, "docs", "standards", "decision-review-policy.md"))
+        for level in ("Ringkas", "Standar", "Penuh"):
+            self.assertIn(level, policy)
+        for name in ("loonars-mentor", "loonars-board"):
+            self.assertIn("decision-review-policy.md", read(os.path.join(SKILLS, name, "SKILL.md")), name)
+        seats = re.findall(r"^\| [^|]+ \| ([^|]+) \|$", policy.split("## Pemilihan seat")[1].split("##")[0], re.M)
+        labels = {"CFO Advisor": "cfo-advisor", "Chairman": "chairman", "Investment Advisor": "investment-advisor",
+                  "CEO Advisor": "ceo-advisor", "Operations Director": "operations-director", "Consumer Panel*": "consumer-panel",
+                  "Marketing Director": "marketing-director", "Market Intelligence": "market-intelligence"}
+        rows = [r for r in seats if not r.strip().startswith("-") and r.strip() != "3 seat"]
+        self.assertEqual(len(rows), 9)
+        for row in rows:
+            names = [s.strip() for s in row.split(",")]
+            self.assertEqual(len(names), 3, row)
+            for n in names:
+                self.assertIn(labels[n], SEATS, n)
+
     def test_private_and_env_are_ignored(self):
         gi = read(os.path.join(ROOT, ".gitignore"))
         for line in ("private/", ".env", ".env.*"):
