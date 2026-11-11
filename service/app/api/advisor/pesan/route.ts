@@ -2,7 +2,7 @@ import { after } from "next/server";
 
 import { normalisasiNomor, secretsMatch } from "@/lib/auth";
 import { CONFIG } from "@/lib/config";
-import { jawab } from "@/lib/mentor";
+import { depsBawaan, proses } from "@/lib/fitur";
 import { kirimWa } from "@/lib/wa";
 
 /**
@@ -34,9 +34,12 @@ export async function POST(req: Request): Promise<Response> {
   after(async () => {
     const mulai = Date.now();
     try {
-      const j = await jawab(pesan);
-      await kirimWa(nomor, j.teks);
-      console.log("advisor ok", { model: j.model, cadangan: j.cadangan, angkaTakBerdasar: j.angkaTakBerdasar.length, ms: Date.now() - mulai });
+      const deps = depsBawaan();
+      // Nomor owner disimpan di register (privat) untuk pengingat harian.
+      deps.reg.setel("owner_wa", nomor).catch((e) => console.error("simpan owner_wa gagal", e));
+      const balasan = await proses(pesan, deps);
+      for (const b of balasan) await kirimWa(nomor, b);
+      console.log("advisor ok", { bagian: balasan.length, ms: Date.now() - mulai });
     } catch (e) {
       console.error("advisor gagal", e);
       await kirimWa(nomor, "⚠️ Advisor gagal menyusun jawaban kali ini. Coba kirim ulang sebentar lagi.");

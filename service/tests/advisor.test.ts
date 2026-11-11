@@ -5,7 +5,7 @@ import path from "node:path";
 import { angkaDalamTeks, angkaTakBerdasar } from "@/lib/angka";
 import { samarkan } from "@/lib/aicfo";
 import { normalisasiNomor, secretsMatch } from "@/lib/auth";
-import { bersihkanAwalan, daftarKeputusan, jawab, perintah } from "@/lib/mentor";
+import { bersihkanAwalan, daftarKeputusan, jawab } from "@/lib/mentor";
 import { rapikanWa } from "@/lib/wa";
 
 describe("penjaga angka", () => {
@@ -38,10 +38,8 @@ describe("keamanan", () => {
 describe("perintah tanpa AI", () => {
   it("awalan dibuang, menu & daftar keputusan tanpa model", () => {
     expect(bersihkanAwalan("Advisor: apa fokus saya?")).toBe("apa fokus saya?");
-    expect(perintah("menu")).toContain("Loonars AI Advisor");
-    expect(perintah("keputusan saya")).toContain("D-2026-004");
+    expect(daftarKeputusan()).toContain("D-2026-004");
     expect(daftarKeputusan()).toContain("CONFIRMED");
-    expect(perintah("apa fokus saya minggu ini?")).toBeNull();
   });
   it("pesan WA panjang dipotong rapi", () => {
     expect(rapikanWa("a".repeat(5000)).length).toBeLessThanOrEqual(3500);

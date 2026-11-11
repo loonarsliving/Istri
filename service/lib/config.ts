@@ -19,6 +19,15 @@ export const CONFIG = {
   mkConnectUrl: (process.env.MK_CONNECT_URL ?? "https://mkh.haluoleo.id").replace(/\/+$/, ""),
   aiCfoUrl: process.env.LOONARS_AI_CFO_URL ?? "https://finance.haluoleo.id/api/cfo/advisor",
   aiCfoSecret: process.env.LOONARS_AI_CFO_SECRET ?? "",
+  /**
+   * Register advisor (tabel advisor_* di database MKH Property, D-2026-005/007).
+   * Kunci anon bukan rahasia; aksesnya digerbang header x-advisor-secret =
+   * LOONARS_AI_CFO_SECRET (rahasia Vault advisor_shared_secret yang sama).
+   */
+  dbUrl: (process.env.LOONARS_DB_URL ?? "https://gluoioiimapyhchdasfl.supabase.co").replace(/\/+$/, ""),
+  dbAnonKey: process.env.LOONARS_DB_ANON_KEY ?? "",
+  /** Vercel Cron mengirim Authorization: Bearer <CRON_SECRET>. Kosong = pengingat menolak (fail closed). */
+  cronSecret: process.env.CRON_SECRET ?? "",
 } as const;
 
 export function missingConfig(): string[] {
@@ -26,5 +35,7 @@ export function missingConfig(): string[] {
   if (!CONFIG.geminiApiKey) missing.push("GEMINI_API_KEY");
   if (CONFIG.bridgeSecret.length < 32) missing.push("ADVISOR_BRIDGE_SECRET");
   if (CONFIG.aiCfoSecret.length < 32) missing.push("LOONARS_AI_CFO_SECRET");
+  if (!CONFIG.dbAnonKey) missing.push("LOONARS_DB_ANON_KEY");
+  if (CONFIG.cronSecret.length < 32) missing.push("CRON_SECRET");
   return missing;
 }
