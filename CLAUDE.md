@@ -14,6 +14,13 @@ Sumber kebenaran: `docs/00-master-instruction.md`. Baca sebelum bekerja.
 - Keputusan baru berstatus `CONFIRMED` hanya setelah founder mengonfirmasi.
 - **Semua keputusan founder dibahas** (D-2026-004), di bidang apa pun; kedalaman
   menurut `docs/standards/decision-review-policy.md`. Jangan pernah bilang "langsung saja".
+- **Jangan menyuruh founder melakukan langkah teknis di luar Claude Code**
+  (SQL editor, dashboard, menyalin rahasia, setting server) — keputusan founder
+  2026-11-11. Kerjakan sendiri dengan alat yang ada (Supabase MCP, GitHub,
+  Vercel, environment tools); bila benar-benar terhalang izin, cukup minta satu
+  persetujuan di Claude Code. Founder fokus pada ide dan keputusan bisnis.
+- AI CFO: `python3 tools/adapters/ai_cfo.py fakta|tanya|evaluasi` (lihat
+  `docs/standards/consult-ai-cfo.md`; buat ulang `private/advisor.env` sendiri bila hilang).
 - Jangan mengubah repo upstream `founder-skill`; pertahankan atribusi MIT.
 - Analisis strategis memakai format 10 bagian + confidence level + unknowns
   (`docs/standards/output-format.md`).
