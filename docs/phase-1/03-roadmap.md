@@ -8,7 +8,7 @@ acceptance criteria fase sebelumnya.** Status dicatat di tabel bawah.
 | Phase 1 — Audit | **Selesai, disetujui founder 2026-11-11** |
 | Phase 2 — Foundation | **Selesai** kecuali review knowledge base oleh founder (P2-4) |
 | Phase 3 — Advisory Engine | **Selesai** (P3-5 sebagian: skill feasibility belum dijalankan ujung-ke-ujung) |
-| Phase 4 — Testing | **Dijalankan 2026-11-11**; menunggu penilaian founder (P4-3) |
+| Phase 4 — Testing | **Selesai 2026-11-11** (dinilai berguna oleh founder) |
 | Phase 5 — Future Integration | **Selesai untuk tahap ini**: AI CFO aktif & teruji; FRIDAY Holding & villa desain lengkap (aktivasi = keputusan terpisah) |
 
 ## Phase 1 — Audit
@@ -77,7 +77,7 @@ Kasus (dari master instruction):
 Acceptance criteria:
 - [x] P4-1 Kelima kasus dijalankan 2026-11-11: versi publik tanpa angka `analyses/2026-11-11-phase4/README.md`; versi lengkap di `private/`.
 - [x] P4-2 Angka dikutip dengan ID fakta AI CFO [F..]; turunan berlabel PROJECTION + rumus; data kosong NEEDS DATA.
-- [ ] P4-3 Founder menilai tiap output (berguna / tidak, kritis cukup / tidak) — dicatat.
+- [x] P4-3 Founder menilai 2026-11-11: "Ya ini semua berguna" (kelima kasus).
 - [x] P4-4 Daftar perbaikan berprioritas di `analyses/2026-11-11-phase4/README.md`.
 
 ## Phase 5 — Future Integration (AI CFO aktif; lainnya desain)
