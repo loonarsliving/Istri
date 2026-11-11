@@ -1,5 +1,5 @@
 import { CONFIG, missingConfig } from "@/lib/config";
-import { cekModel } from "@/lib/gemini";
+import { cekModel, daftarModelPro } from "@/lib/gemini";
 
 /**
  * GET /api/advisor/health — status konfigurasi (hanya ya/tidak, tanpa nilai
@@ -18,5 +18,6 @@ export async function GET(): Promise<Response> {
     model: { nama: CONFIG.model, ...model },
     cadangan: { nama: CONFIG.fallbackModel, ...cadangan },
     thinkingLevel: CONFIG.thinkingLevel,
+    modelProTersedia: CONFIG.geminiApiKey && !model.ada ? await daftarModelPro() : undefined,
   });
 }

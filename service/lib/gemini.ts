@@ -67,3 +67,19 @@ export async function cekModel(model: string): Promise<{ ada: boolean; pesan: st
     return { ada: false, pesan: e instanceof Error ? e.message.slice(0, 200) : String(e) };
   }
 }
+
+/** Nama model ber-"pro" yang tersedia untuk kunci advisor (nama model bukan rahasia). */
+export async function daftarModelPro(): Promise<string[]> {
+  try {
+    const nama: string[] = [];
+    const pager = await ai().models.list();
+    for await (const m of pager) {
+      const n = (m.name ?? "").replace(/^models\//, "");
+      if (/pro/i.test(n)) nama.push(n);
+      if (nama.length > 40) break;
+    }
+    return nama.sort();
+  } catch (e) {
+    return [`gagal: ${e instanceof Error ? e.message.slice(0, 120) : String(e)}`];
+  }
+}
