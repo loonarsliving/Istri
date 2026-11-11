@@ -66,7 +66,7 @@ class Repo(unittest.TestCase):
                     self.assertRegex(text, re.compile(r"^confirmed_by: founder", re.M), f)
 
     def test_no_secrets_committed(self):
-        skip = {".git", "vendor", "private", "__pycache__"}
+        skip = {".git", "vendor", "private", "__pycache__", "node_modules", ".next"}
         for base, dirs, files in os.walk(ROOT):
             dirs[:] = [x for x in dirs if x not in skip]
             for f in files:

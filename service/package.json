@@ -1,0 +1,28 @@
+{
+  "name": "loonars-advisor-service",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Loonars AI Advisor — layanan mandiri (D-2026-005/006): mentor via WhatsApp dengan Gemini Pro khusus advisor",
+  "scripts": {
+    "sync-content": "node scripts/sync-content.mjs",
+    "prebuild": "node scripts/sync-content.mjs --if-present",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@google/genai": "^2.11.0",
+    "next": "15.5.29",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "typescript": "^5.8.3",
+    "vitest": "^2.1.9"
+  }
+}
