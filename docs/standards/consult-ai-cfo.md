@@ -31,6 +31,9 @@ Advisor tidak menghitung ulang angka aktual.
 Tulis `NEEDS DATA: konsultasi AI CFO` dan turunkan confidence ke Low. Jangan
 mengganti dengan angka perkiraan sendiri.
 
-## Tahap B (Phase 5, belum aktif)
-`AiCfoSource` membaca endpoint read-only khusus advisor. Lihat
-`docs/integrations/01-ai-cfo.md`.
+## Tahap B (siap, belum dipasang)
+Setelah patch `integrations/mkh-properti-advisor/` dipasang dan secret dibuat,
+`AiCfoSource` (`tools/adapters/sources.py`) memanggil `POST /api/cfo/advisor`
+langsung dengan mode `fakta`, `tanya`, atau `evaluasi` (CEO challenger).
+Env: `LOONARS_ENABLE_LIVE_SOURCES=1`, `LOONARS_AI_CFO_URL`, `LOONARS_AI_CFO_SECRET`.
+Hasil `unreachable` → NEEDS DATA.

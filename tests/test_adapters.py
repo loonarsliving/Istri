@@ -47,6 +47,47 @@ class Adapters(unittest.TestCase):
             with self.assertRaises(base.SourceError):
                 sources.ManualSnapshotSource(p).fetch()
 
+    def test_ai_cfo_reads_endpoint_with_advisor_secret_only(self):
+        import http.server
+        import threading
+        seen = {}
+
+        class H(http.server.BaseHTTPRequestHandler):
+            def do_POST(self):
+                seen["secret"] = self.headers.get("x-advisor-secret")
+                seen["sync"] = self.headers.get("x-sync-secret")
+                seen["body"] = json.loads(self.rfile.read(int(self.headers["content-length"])))
+                out = json.dumps({"sumber": "MKH Property AI CFO", "hariIni": "2026-11-11", "mode": "evaluasi",
+                                  "label": "PROJECTION", "putusan": "waspada", "fakta": []}).encode()
+                self.send_response(200)
+                self.send_header("content-type", "application/json")
+                self.end_headers()
+                self.wfile.write(out)
+
+            def log_message(self, *a):
+                pass
+
+        srv = http.server.HTTPServer(("127.0.0.1", 0), H)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        try:
+            env = {"LOONARS_ENABLE_LIVE_SOURCES": "1", "LOONARS_AI_CFO_SECRET": "s" * 40,
+                   "LOONARS_AI_CFO_URL": "http://127.0.0.1:%d/api/cfo/advisor" % srv.server_port}
+            r = sources.AiCfoSource(env).fetch("evaluasi", rencana={"nominal": 1e8, "lini": "L1", "ket": "x"})
+            self.assertEqual(r.label, "PROJECTION")
+            self.assertEqual(r.rows[0]["putusan"], "waspada")
+            self.assertEqual(seen["secret"], "s" * 40)
+            self.assertIsNone(seen["sync"])
+            self.assertEqual(seen["body"]["mode"], "evaluasi")
+        finally:
+            srv.shutdown()
+
+    def test_ai_cfo_unreachable_is_not_zero(self):
+        env = {"LOONARS_ENABLE_LIVE_SOURCES": "1", "LOONARS_AI_CFO_SECRET": "s" * 40,
+               "LOONARS_AI_CFO_URL": "http://127.0.0.1:9/none"}
+        r = sources.AiCfoSource(env, timeout=2).fetch("fakta")
+        self.assertEqual(r.health, "unreachable")
+        self.assertEqual(r.rows, [])
+
     def test_bad_label_refused(self):
         with self.assertRaises(base.SourceError):
             base.Records("s", "d", None, "now", "GUESS")

@@ -61,7 +61,8 @@ tests/           unit test tool & struktur repo
 
 ```bash
 cd tests && python3 -m unittest test_finance test_adapters test_repo
-python3 -m unittest test_adapted_upstream   # menjalankan kode turunan upstream
+python3 -m unittest test_adapted_upstream   # kode turunan upstream
+cd ../vendor/founder-skill && python3 -m unittest discover -s tests   # upstream asli
 ```
 
 ## Penting

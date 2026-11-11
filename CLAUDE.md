@@ -21,4 +21,6 @@ Sumber kebenaran: `docs/00-master-instruction.md`. Baca sebelum bekerja.
   `CLAUDE.md` masing-masing (mis. harga villa butuh persetujuan owner).
 - Repo ini **publik**: jangan commit angka keuangan aktual, nama pembeli/
   investor, rekening, NIK, telepon. Pakai `private/`.
-- Tes: `cd tests && python3 -m unittest test_finance test_adapters test_repo`.
+- Tes: `cd tests && python3 -m unittest test_finance test_adapters test_repo test_adapted_upstream`.
+- Patch untuk repo lain disimpan di `integrations/<repo>-*/`; jangan dianggap terpasang
+  sampai dipasang di repo itu.

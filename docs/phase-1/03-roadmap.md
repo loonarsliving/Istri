@@ -41,7 +41,7 @@ Pekerjaan:
 8. `.gitignore`, secret scanning, CLAUDE.md berisi aturan kerja.
 
 Acceptance criteria:
-- [ ] P2-1 Test upstream dijalankan — **diblokir**: kebijakan sesi menolak eksekusi kode turunan upstream (termasuk `tests/test_adapted_upstream.py`). Perlu izin founder.
+- [x] P2-1 Test upstream dijalankan setelah izin founder (2026-11-11): 29/29 lulus di `vendor/founder-skill`; `test_adapted_upstream` lulus; smoke test `tools/panel/panel.py` (brief IDR) berhasil.
 - [x] P2-2 `vendor/founder-skill` identik dengan upstream `fd9385b` (`diff -r` kosong saat vendoring) dan LICENSE ada.
 - [x] P2-3 8 custom skill + 3 skill adaptasi (mentor, board, consumer, market…) dengan 5 bagian wajib; diuji `test_repo.py`.
 - [ ] P2-4 Knowledge base: semua file ada dengan status & label (diuji); **review founder belum**.
@@ -86,3 +86,4 @@ Acceptance criteria:
 - [ ] P5-1 Dokumen desain per sumber (MKH, Supabase, Cloudbeds, OTA, laporan keuangan & operasional): dataset, field, frekuensi, pemilik, cara akses read-only.
 - [ ] P5-2 Model ancaman & rencana pengelolaan credential.
 - [ ] P5-3 Tidak ada koneksi produksi di kode; aktivasi butuh persetujuan tertulis founder.
+- [~] P5-4 Endpoint AI CFO advisor (disetujui founder 2026-11-11): patch siap di `integrations/mkh-properti-advisor/` (125/125 vitest, typecheck, lint, build lulus). **Belum dipasang** — sesi ini tidak punya akses push ke mkh-properti. `AiCfoSource` di Istri siap, mati sampai env var diisi.

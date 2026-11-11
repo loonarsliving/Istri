@@ -9,6 +9,8 @@ reviewed in the owning repo (see docs/integrations/).
 import datetime as _dt
 import json
 import os
+import urllib.error
+import urllib.request
 from typing import Optional
 
 from base import DataSource, Period, Records, SourceError, SourceInfo, unreachable, validate_metric
@@ -60,13 +62,61 @@ class _LiveStub(DataSource):
                 self.INFO.system, self.INFO.note))
 
 
-class AiCfoSource(_LiveStub):
-    """MKH Property AI CFO (finance.haluoleo.id). Proposed read-only endpoint POST /api/cfo/advisor
-    returning {jawaban, putusan, fakta[], evaluasi?}. Today the AI CFO is reached through MK Connect's
-    owner WA tool `ai_cfo` (/api/cfo/tanya-wa) or /cfo/chat; this advisor must not reuse the shared
-    sync secret."""
-    INFO = SourceInfo(name="ai_cfo", system="MKH Property AI CFO", owner_repo="loonarsliving/mkh-properti",
-                      note="docs/integrations/01-ai-cfo.md")
+class SourceDisabled(NotImplementedError):
+    """A live source that has not been switched on."""
+
+
+class AiCfoSource(DataSource):
+    """MKH Property AI CFO, read-only endpoint POST /api/cfo/advisor (patch:
+    integrations/mkh-properti-advisor/). Off unless all three env vars are set:
+
+        LOONARS_ENABLE_LIVE_SOURCES=1
+        LOONARS_AI_CFO_URL=https://finance.haluoleo.id/api/cfo/advisor
+        LOONARS_AI_CFO_SECRET=<advisor secret, never committed>
+
+    datasets: "fakta" | "tanya" (query=pertanyaan) | "evaluasi" (rencana={nominal, lini, ket, ...}).
+    It never uses MK Connect's shared sync secret.
+    """
+
+    def __init__(self, env=None, timeout=30):
+        self.env = os.environ if env is None else env
+        self.timeout = timeout
+
+    def _enabled(self):
+        return (self.env.get("LOONARS_ENABLE_LIVE_SOURCES") == "1" and bool(self.env.get("LOONARS_AI_CFO_URL"))
+                and len(self.env.get("LOONARS_AI_CFO_SECRET", "")) >= 32)
+
+    def describe(self) -> SourceInfo:
+        return SourceInfo(name="ai_cfo", system="MKH Property AI CFO", owner_repo="loonarsliving/mkh-properti",
+                          read_only=True, enabled=self._enabled(), note="docs/integrations/01-ai-cfo.md")
+
+    def fetch(self, dataset: str, period: Optional[Period] = None, query: str = "", rencana=None) -> Records:
+        if not self._enabled():
+            raise SourceDisabled("AI CFO belum aktif: set LOONARS_ENABLE_LIVE_SOURCES, LOONARS_AI_CFO_URL, "
+                                 "LOONARS_AI_CFO_SECRET (lihat integrations/mkh-properti-advisor/README.md). "
+                                 "Sementara pakai ManualSnapshotSource.")
+        if dataset == "fakta":
+            body = {"mode": "fakta"}
+        elif dataset == "tanya":
+            body = {"mode": "tanya", "pertanyaan": query}
+        elif dataset == "evaluasi":
+            body = {"mode": "evaluasi", "rencana": rencana or {}}
+        else:
+            raise SourceError("dataset AI CFO tidak dikenal: %r" % dataset)
+        req = urllib.request.Request(self.env["LOONARS_AI_CFO_URL"], data=json.dumps(body).encode("utf-8"),
+                                     method="POST", headers={"content-type": "application/json",
+                                                             "x-advisor-secret": self.env["LOONARS_AI_CFO_SECRET"]})
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as res:
+                d = json.loads(res.read().decode("utf-8"))
+        except (urllib.error.URLError, OSError, ValueError) as e:
+            # Not reachable is not zero: report it as unreachable, never as data.
+            return unreachable("ai_cfo", dataset, "AI CFO tidak terbaca: %s" % e, period)
+        hari = d.get("hariIni")
+        return Records(source="MKH Property AI CFO", dataset=dataset,
+                       period=Period(hari, hari) if hari else None, retrieved_at=now_iso(),
+                       label=d.get("label", "ACTUAL") if d.get("label") in ("ACTUAL", "PROJECTION") else "ACTUAL",
+                       rows=[d], note="POST /api/cfo/advisor")
 
 
 class FridayHoldingSource(_LiveStub):

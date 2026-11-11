@@ -1,6 +1,6 @@
 # Integrasi AI CFO (MKH Property) — desain
 
-Status: tahap A aktif (manual) · tahap B **desain saja, belum diimplementasikan**.
+Status: tahap A aktif (manual) · tahap B **diimplementasikan sebagai patch** (`integrations/mkh-properti-advisor/`), belum dipasang di mkh-properti. Desain final memakai flag transaksi + rahasia terpisah (lihat README patch); bagian di bawah adalah desain awal.
 Repo pemilik: `loonarsliving/mkh-properti` (`finance.haluoleo.id`).
 
 ## Tahap A — manual (sekarang)

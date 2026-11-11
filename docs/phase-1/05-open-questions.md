@@ -5,15 +5,10 @@ Jawaban di bawah dibutuhkan sebelum / selama Phase 2. Jangan diisi oleh AI.
 ## Prioritas tinggi
 
 1. ~~ADR-1..5~~ — disetujui 2026-11-11 ("lanjutkan semua").
-2. **Visibilitas repo — TERJAWAB OLEH CEK: repo `Istri` PUBLIC** (juga `villa`,
-   `Mkhsistem`, `mkh-properti`). Mau dibuat private? Sampai itu, angka aktual
-   tidak di-commit.
+2. ~~Visibilitas repo~~ — tetap publik; founder akan membuatnya private setelah sistem jadi. Sampai itu, angka aktual tidak di-commit.
 3. ~~Nama repo~~ — tetap `Istri`, rename setelah selesai.
-3b. **Izin eksekusi kode upstream**: boleh menjalankan test founder-skill dan
-   tool turunannya (`panel.py`, `unit_economics.py`)? Dibutuhkan untuk P2-1
-   dan untuk consumer panel.
-3c. **Endpoint advisor di mkh-properti** (`docs/integrations/01-ai-cfo.md`):
-   setuju dibangun di Phase 5?
+3b. ~~Izin eksekusi kode upstream~~ — diizinkan 2026-11-11; tes lulus.
+3c. ~~Endpoint advisor~~ — disetujui dengan syarat tidak merusak sistem; patch siap. **Siapa yang memasang?** (butuh akses push ke mkh-properti + menerapkan migrasi + membuat secret Vault).
 3d. **Batas keputusan wajib ke board**: nominal berapa?
 4. **Lisensi kode Loonars**: proprietary (rekomendasi) atau lainnya?
 5. **Mata uang & bahasa**: IDR sebagai default? Output dalam Bahasa Indonesia,
