@@ -86,4 +86,4 @@ Acceptance criteria:
 - [ ] P5-1 Dokumen desain per sumber (MKH, Supabase, Cloudbeds, OTA, laporan keuangan & operasional): dataset, field, frekuensi, pemilik, cara akses read-only.
 - [ ] P5-2 Model ancaman & rencana pengelolaan credential.
 - [ ] P5-3 Tidak ada koneksi produksi di kode; aktivasi butuh persetujuan tertulis founder.
-- [~] P5-4 Endpoint AI CFO advisor (disetujui founder 2026-11-11): patch siap di `integrations/mkh-properti-advisor/` (125/125 vitest, typecheck, lint, build lulus). **Belum dipasang** — sesi ini tidak punya akses push ke mkh-properti. `AiCfoSource` di Istri siap, mati sampai env var diisi.
+- [~] P5-4 Endpoint AI CFO advisor (disetujui founder 2026-11-11): **terpasang** — mkh-properti PR #61 di-merge, migrasi 0072 diterapkan & diverifikasi di database produksi. Sisa: owner membuat secret Vault `advisor_shared_secret` + menyimpan nilai yang sama untuk advisor; lalu uji positif.

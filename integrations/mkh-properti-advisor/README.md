@@ -1,5 +1,7 @@
 # Patch mkh-properti: endpoint AI CFO hanya-baca untuk Advisor
 
+> **Status 2026-11-11: TERPASANG.** mkh-properti PR #61 (merge `fea6568`), migrasi 0072 diterapkan ke `gluoioi…` dan diverifikasi. Endpoint menunggu secret Vault. File di bawah adalah arsip patch.
+
 Disiapkan 2026-11-11 atas persetujuan owner ("silahkan, selama endpoint
 advisor itu tidak merusak sistem yang sudah bekerja"). Sesi pembuatnya tidak
 punya akses push ke `loonarsliving/mkh-properti`, jadi patch disimpan di sini
