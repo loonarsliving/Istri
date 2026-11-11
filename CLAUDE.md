@@ -30,7 +30,10 @@ Sumber kebenaran: `docs/00-master-instruction.md`. Baca sebelum bekerja.
   advisor `/api/cfo/advisor` (disetujui founder, PR #61/#63) lewat PR + CI. Hormati aturan di
   `CLAUDE.md` masing-masing (mis. harga villa butuh persetujuan owner).
 - Repo ini **publik**: jangan commit angka keuangan aktual, nama pembeli/
-  investor, rekening, NIK, telepon. Pakai `private/`.
+  investor, rekening, NIK, telepon. Pakai `private/` selama sesi, lalu **simpan
+  salinan permanen ke Google Drive founder, folder "Loonars AI Advisor – Privat"**
+  (id `1EPp0-wd7pzcWSQeQF5geN96MkvmvwKpv`, privat) lewat konektor Google Drive.
+  Jangan simpan analisis berangka di Filemanager/Mac mini (bisa diminta karyawan via WA).
 - Tes: `cd tests && python3 -m unittest test_finance test_adapters test_repo test_adapted_upstream`.
 - Patch untuk repo lain disimpan di `integrations/<repo>-*/`; jangan dianggap terpasang
   sampai dipasang di repo itu.

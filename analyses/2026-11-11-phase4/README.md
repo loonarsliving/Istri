@@ -2,7 +2,8 @@
 
 > Versi publik **tanpa angka**. Analisis lengkap (memo per seat, chair summary
 > 10 bagian, angka AI CFO berlabel) ada di `private/analyses/2026-11-11-phase4/`
-> (di-ignore Git) dan bisa disusun ulang kapan saja dari AI CFO.
+> (di-ignore Git) dan salinan permanennya di Google Drive founder, folder privat
+> "Loonars AI Advisor – Privat".
 > Ini kasus uji sistem, **bukan keputusan founder**. Setiap keputusan nyata
 > dibahas lagi dan dicatat lewat `/founder-decision-review` (D-2026-004).
 
@@ -48,7 +49,7 @@ panel konsumen, discount rate founder, tujuan strategis.
 
 | Prioritas | Perbaikan | Status |
 | --- | --- | --- |
-| 1 | Salinan privat permanen untuk analisis berangka (container sesi sementara) | dicatat; repo akan private setelah selesai |
+| 1 | Salinan privat permanen untuk analisis berangka (container sesi sementara) | **selesai**: Google Drive founder, folder privat "Loonars AI Advisor – Privat" (6 dokumen) |
 | 2 | Jalankan `/loonars-market` & `/loonars-consumer --quick` untuk L2 sebelum keputusan penjualan | belum (butuh persetujuan biaya sub-agent per run) |
 | 3 | `hospitality.py` butuh data 12 bulan — tambah mode "satu bulan + tuas" agar bisa dipakai dengan data parsial | backlog |
 | 4 | Mode `evaluasi` AI CFO hanya untuk uang keluar; skenario pemasukan (penagihan, penjualan) perlu mode `simulasi_pemasukan` di endpoint | backlog (perubahan mkh-properti, perlu dibahas) |
