@@ -12,7 +12,9 @@ REQUIRED_SKILLS = {
 }
 SECTIONS = ("## Instruksi", "## Input", "## Proses", "## Output", "## Batasan")
 SEATS = {"chairman", "ceo-advisor", "cfo-advisor", "investment-advisor", "market-intelligence",
-         "consumer-panel", "marketing-director", "operations-director"}
+         "consumer-panel", "marketing-director", "operations-director",
+         # D-2026-008: kursi menuju IPO
+         "governance", "legal-compliance", "people-organization", "capital-markets"}
 KB = {
     "company": ["company-profile", "business-model", "company-structure", "financial-position",
                 "strategic-goals", "investment-history"],
@@ -45,7 +47,7 @@ class Repo(unittest.TestCase):
             for s in SECTIONS:
                 self.assertIn(s, text, "%s lacks %s" % (name, s))
 
-    def test_board_has_eight_seats(self):
+    def test_board_has_twelve_seats(self):
         seats = {f[:-3] for f in os.listdir(os.path.join(SKILLS, "loonars-board", "seats")) if not f.startswith("_")}
         self.assertEqual(seats, SEATS)
 
@@ -87,9 +89,11 @@ class Repo(unittest.TestCase):
         seats = re.findall(r"^\| [^|]+ \| ([^|]+) \|$", policy.split("## Pemilihan seat")[1].split("##")[0], re.M)
         labels = {"CFO Advisor": "cfo-advisor", "Chairman": "chairman", "Investment Advisor": "investment-advisor",
                   "CEO Advisor": "ceo-advisor", "Operations Director": "operations-director", "Consumer Panel*": "consumer-panel",
-                  "Marketing Director": "marketing-director", "Market Intelligence": "market-intelligence"}
+                  "Marketing Director": "marketing-director", "Market Intelligence": "market-intelligence",
+                  "Tata Kelola": "governance", "Hukum/Pajak & Kepatuhan": "legal-compliance",
+                  "SDM & Organisasi": "people-organization", "Pasar Modal & IPO": "capital-markets"}
         rows = [r for r in seats if not r.strip().startswith("-") and r.strip() != "3 seat"]
-        self.assertEqual(len(rows), 9)
+        self.assertEqual(len(rows), 11)
         for row in rows:
             names = [s.strip() for s in row.split(",")]
             self.assertEqual(len(names), 3, row)

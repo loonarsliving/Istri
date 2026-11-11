@@ -39,7 +39,10 @@ bergerbang rahasia. Keputusan repo D-2026-001…007 diimpor sekali (`sumber = re
 | Pesan WA | Hasil |
 | --- | --- |
 | pertanyaan/diskusi bebas | mentor Gemini Pro; bila menyebut uang keluar (Rp/juta + kata kerja belanja) → AI CFO `evaluasi` dikutip |
-| `bahas: …` / `board penuh: …` | sidang board: 3 seat (tabel bidang) atau 8 seat (eskalasi/diminta) + ringkasan Chairman; memo disimpan `advisor_dokumen` |
+| `bahas: …` / `board penuh: …` | sidang board: 3 kursi (tabel bidang) atau 12 kursi (eskalasi/diminta, D-2026-008) + ringkasan Chairman; memo disimpan `advisor_dokumen`; usulan memori disimpan berstatus usulan |
+| `advisor rapat direksi` | rapat 12 kursi (notulen: kondisi, 3 penghambat, keputusan ditinjau, kesiapan IPO, 3 langkah); otomatis tanggal 1 pukul 08:17 WIB (`/api/advisor/rapat-bulanan`) |
+| `advisor ingat[ beban/hambatan/pelajaran/tujuan/aturan/model bisnis]: …` | memori perusahaan aktif (`advisor_memori`, migrasi 0074) — dibaca setiap sidang & mentor |
+| `advisor memori` · `advisor sahkan memori N/semua` · `advisor lupakan memori N` | kelola memori; usulan direksi hanya berlaku setelah disahkan |
 | `catat keputusan[ dari board N]: …` | draf 11 field → PROPOSED (nomor otomatis D-YYYY-NNN) |
 | `bahas D-…` | sidangkan keputusan tercatat; syarat board ditambahkan; `dibahas = true` |
 | `konfirmasi D-…` | CONFIRMED, hanya dari PROPOSED yang sudah dibahas (D-2026-004) |
@@ -49,7 +52,7 @@ bergerbang rahasia. Keputusan repo D-2026-001…007 diimpor sekali (`sumber = re
 
 Pengingat: `/api/advisor/pengingat` (cron harian) → WA ke nomor owner terakhir
 (`advisor_pengaturan.owner_wa`) bila ada syarat ≤3 hari atau keputusan waktunya ditinjau.
-Biaya kasar: satu sidang ringkas ≈ 4 panggilan Pro, sidang 8 seat ≈ 9 panggilan
+Biaya kasar: satu sidang ringkas ≈ 4 panggilan Pro, sidang/rapat 12 kursi ≈ 13 panggilan
 (ASSUMPTION; cek tagihan Google pada tinjauan 11 Des 2026).
 
 ## Cek kesehatan

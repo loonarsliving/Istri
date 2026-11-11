@@ -1,6 +1,7 @@
 import { angkaTakBerdasar } from "./angka";
 import { CONTENT } from "./content.generated";
 import type { TanyaModel } from "./gemini";
+import { KATEGORI_MEMORI, type KategoriMemori } from "./register";
 
 /**
  * AI Board via WA (pola skill loonars-board, D-2026-007). Setiap seat = satu
@@ -16,15 +17,21 @@ export const SEAT = {
   "consumer-panel": "Consumer Panel",
   "marketing-director": "Marketing Director",
   "operations-director": "Operations Director",
+  governance: "Tata Kelola & Komisaris Independen",
+  "legal-compliance": "Hukum, Pajak & Kepatuhan",
+  "people-organization": "SDM & Organisasi",
+  "capital-markets": "Pasar Modal & IPO",
 } as const;
 export type KodeSeat = keyof typeof SEAT;
 export const SEMUA_SEAT = Object.keys(SEAT) as KodeSeat[];
 
 /** Tabel "Pemilihan seat untuk tingkat Ringkas" (decision-review-policy.md). */
 const BIDANG: { nama: string; pola: RegExp; seat: [KodeSeat, KodeSeat, KodeSeat] }[] = [
-  { nama: "Investor & kemitraan", pola: /investor|mitra|kemitraan|bagi hasil|saham|equity|fundrais/i, seat: ["investment-advisor", "chairman", "cfo-advisor"] },
-  { nama: "Hukum & kepatuhan", pola: /hukum|legal|kontrak|pajak|izin|perizinan|notaris|sertifikat|kepatuhan/i, seat: ["chairman", "cfo-advisor", "operations-director"] },
-  { nama: "SDM & organisasi", pola: /karyawan|staf|rekrut|gaji|pecat|phk|manajer|organisasi|tim\b|sdm/i, seat: ["ceo-advisor", "operations-director", "chairman"] },
+  { nama: "IPO & pasar modal", pola: /\bipo\b|go public|bursa|saham publik|pra-?ipo|pasar modal|valuasi/i, seat: ["capital-markets", "governance", "cfo-advisor"] },
+  { nama: "Investor & kemitraan", pola: /investor|mitra|kemitraan|bagi hasil|saham|equity|fundrais/i, seat: ["investment-advisor", "capital-markets", "cfo-advisor"] },
+  { nama: "Tata kelola", pola: /tata kelola|komisaris|audit|governance|pihak berelasi|rups/i, seat: ["governance", "chairman", "cfo-advisor"] },
+  { nama: "Hukum & kepatuhan", pola: /hukum|legal|kontrak|pajak|izin|perizinan|notaris|sertifikat|kepatuhan/i, seat: ["legal-compliance", "governance", "cfo-advisor"] },
+  { nama: "SDM & organisasi", pola: /karyawan|staf|rekrut|gaji|pecat|phk|manajer|organisasi|tim\b|sdm/i, seat: ["people-organization", "ceo-advisor", "operations-director"] },
   { nama: "Tamu & pelayanan", pola: /tamu|pelayanan|layanan|review|komplain|check.?in|housekeeping/i, seat: ["consumer-panel", "operations-director", "marketing-director"] },
   { nama: "Brand & marketing", pola: /brand|marketing|promosi|iklan|instagram|tiktok|konten|ota|harga kamar|diskon/i, seat: ["marketing-director", "market-intelligence", "consumer-panel"] },
   { nama: "Sistem & teknologi", pola: /sistem|aplikasi|software|teknologi|ai\b|otomasi|website|server/i, seat: ["operations-director", "ceo-advisor", "cfo-advisor"] },
@@ -34,7 +41,7 @@ const BIDANG: { nama: string; pola: RegExp; seat: [KodeSeat, KodeSeat, KodeSeat]
 const STRATEGI = { nama: "Strategi", seat: ["chairman", "ceo-advisor", "cfo-advisor"] as KodeSeat[] };
 
 /** Kriteria naik ke Standar/Penuh (decision-review-policy.md). */
-const ESKALASI = /karyawan|tamu|investor|mitra|kontrak|hukum|pajak|data pribadi|ekspansi|lini baru|cabang baru|utang baru|pinjaman|jual aset|jual (villa|unit|tanah)|preseden/i;
+const ESKALASI = /karyawan|tamu|investor|mitra|kontrak|hukum|pajak|data pribadi|ekspansi|lini baru|cabang baru|utang baru|pinjaman|jual aset|jual (villa|unit|tanah)|preseden|\bipo\b|go public|komisaris/i;
 
 export interface PilihanBoard {
   bidang: string;
@@ -75,6 +82,12 @@ export function sistemSeat(seat: KodeSeat, konteks: string): string {
     .join("\n");
 }
 
+const ATURAN_JSON = [
+  "Di akhir, DUA baris JSON (masing-masing satu baris):",
+  "SYARAT_JSON: array syarat [{\"teks\":..., \"tenggat\":\"YYYY-MM-DD\"|null}] (kosong bila tidak ada).",
+  "MEMORI_JSON: maks 3 FAKTA baru tentang Loonars Mahakarya yang terungkap di sidang ini dan layak diingat direksi (model bisnis, beban, hambatan, pelajaran, tujuan, aturan) — bukan opini/rekomendasi, bukan angka karangan, jangan mengulang MEMORI PERUSAHAAN yang sudah ada: [{\"kategori\":\"model_bisnis|beban|hambatan|pelajaran|tujuan|aturan|lain\", \"teks\":...}].",
+].join("\n");
+
 export const SISTEM_CHAIR = [
   "Kamu Chairman AI Board Loonars. Susun RINGKASAN SIDANG untuk founder via WhatsApp dari memo-memo seat.",
   "Format WA (tanpa tabel markdown, *tebal* gaya WA, maks ±25 baris):",
@@ -86,43 +99,81 @@ export const SISTEM_CHAIR = [
   "*Belum diketahui* (NEEDS DATA)",
   "*Confidence*: Low/Medium/High",
   "Jangan mengarang angka; pakai hanya angka yang ada di memo/konteks. Jangan menulis ulang memo panjang.",
-  "Di akhir, JSON satu baris diawali 'SYARAT_JSON:' berisi array syarat [{\"teks\":..., \"tenggat\":\"YYYY-MM-DD\"|null}] (array kosong bila tidak ada).",
+  ATURAN_JSON,
 ].join("\n");
+
+export const SISTEM_CHAIR_RAPAT = [
+  "Kamu Chairman AI Board Loonars Mahakarya. Susun NOTULEN RAPAT DIREKSI BULANAN untuk founder via WhatsApp dari memo-memo seat. Tujuan jangka panjang: perusahaan siap IPO.",
+  "Format WA (tanpa tabel markdown, *tebal* gaya WA, maks ±30 baris):",
+  "*Kondisi bulan ini* (kas & arah dari AI CFO, kutip ID fakta; tanpa angka karangan)",
+  "*3 penghambat terbesar* perkembangan perusahaan (yang diangkat ≥2 seat dulu)",
+  "*Keputusan yang perlu ditinjau / syarat terlambat*",
+  "*Kesiapan menuju IPO*: satu kemajuan & satu celah terbesar (syarat resmi BEI/OJK = NEEDS DATA bila belum diriset)",
+  "*3 langkah bulan depan* (terukur, bertanggal, siapa)",
+  "*Pertanyaan direksi untuk founder* (maks 3)",
+  "*Confidence*: Low/Medium/High",
+  ATURAN_JSON,
+].join("\n");
+
+export interface UsulanMemori {
+  kategori: KategoriMemori;
+  teks: string;
+}
 
 export interface HasilBoard {
   pilihan: PilihanBoard;
   ringkasan: string;
   memo: { seat: KodeSeat; teks: string }[];
   syarat: { teks: string; tenggat: string | null }[];
+  memori: UsulanMemori[];
   angkaTakBerdasar: number[];
   dokumen: string;
 }
 
-/** Pisahkan baris SYARAT_JSON dari ringkasan chair. */
-export function pisahSyarat(teks: string): { ringkasan: string; syarat: { teks: string; tenggat: string | null }[] } {
-  const m = /SYARAT_JSON:\s*(\[[\s\S]*?\])\s*$/m.exec(teks);
-  if (!m) return { ringkasan: teks.trim(), syarat: [] };
-  let syarat: { teks: string; tenggat: string | null }[] = [];
+function barisJson(teks: string, label: string): { sisa: string; data: unknown[] } {
+  const re = new RegExp(`^\\s*${label}:\\s*(\\[.*\\])\\s*$`, "m");
+  const m = re.exec(teks);
+  if (!m) return { sisa: teks, data: [] };
+  let data: unknown[] = [];
   try {
-    const arr = JSON.parse(m[1]) as { teks?: unknown; tenggat?: unknown }[];
-    syarat = arr
-      .filter((s) => typeof s.teks === "string" && s.teks.length >= 3)
-      .slice(0, 10)
-      .map((s) => ({
-        teks: String(s.teks).slice(0, 500),
-        tenggat: typeof s.tenggat === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s.tenggat) ? s.tenggat : null,
-      }));
+    const v = JSON.parse(m[1]) as unknown;
+    if (Array.isArray(v)) data = v;
   } catch {
     /* abaikan JSON rusak */
   }
-  return { ringkasan: teks.replace(m[0], "").trim(), syarat };
+  return { sisa: teks.replace(m[0], ""), data };
 }
 
-export async function sidang(topik: string, konteks: string, pilihan: PilihanBoard, tanya: TanyaModel): Promise<HasilBoard> {
+/** Pisahkan baris SYARAT_JSON & MEMORI_JSON dari ringkasan chair. */
+export function pisahSyarat(teks: string): { ringkasan: string; syarat: { teks: string; tenggat: string | null }[]; memori: UsulanMemori[] } {
+  const a = barisJson(teks, "SYARAT_JSON");
+  const b = barisJson(a.sisa, "MEMORI_JSON");
+  const syarat = (a.data as { teks?: unknown; tenggat?: unknown }[])
+    .filter((x) => typeof x?.teks === "string" && x.teks.length >= 3)
+    .slice(0, 10)
+    .map((x) => ({
+      teks: String(x.teks).slice(0, 500),
+      tenggat: typeof x.tenggat === "string" && /^\d{4}-\d{2}-\d{2}$/.test(x.tenggat) ? x.tenggat : null,
+    }));
+  const memori = (b.data as { kategori?: unknown; teks?: unknown }[])
+    .filter((x) => typeof x?.teks === "string" && x.teks.length >= 3)
+    .slice(0, 3)
+    .map((x) => ({
+      kategori: (KATEGORI_MEMORI as string[]).includes(String(x.kategori)) ? (x.kategori as KategoriMemori) : "lain",
+      teks: String(x.teks).slice(0, 1000),
+    }));
+  return { ringkasan: b.sisa.replace(/\n{3,}/g, "\n\n").trim(), syarat, memori };
+}
+
+export async function sidang(topik: string, konteks: string, pilihan: PilihanBoard, tanya: TanyaModel, mode: "keputusan" | "rapat" = "keputusan"): Promise<HasilBoard> {
+  const tugas =
+    mode === "rapat"
+      ? "\n\nIni RAPAT DIREKSI BULANAN, bukan voting keputusan. Ganti format memo menjadi: *Temuan bulan ini* · *Penghambat terbesar menurut lens saya* · *Celah menuju IPO* · *Satu langkah bulan depan (terukur)* · *Yang belum diketahui*."
+      : "";
   const memo = await Promise.all(
     pilihan.seat.map(async (seat) => {
       try {
-        const h = await tanya(sistemSeat(seat, konteks), `Topik yang dibahas board:\n${topik}`, { percobaan: 1, maksToken: 4096 });
+        const h = await tanya(sistemSeat(seat, konteks) + tugas, `Topik yang dibahas board:\n${topik}`, { percobaan: 1, maksToken: 4096 });
         return { seat, teks: h.teks };
       } catch (e) {
         console.error(`seat ${seat} gagal`, e);
@@ -132,14 +183,14 @@ export async function sidang(topik: string, konteks: string, pilihan: PilihanBoa
   );
   const isiMemo = memo.map((m) => `--- MEMO ${SEAT[m.seat]} ---\n${m.teks}`).join("\n\n");
   const chair = await tanya(
-    `${SISTEM_CHAIR}\n\n=== KONTEKS ===\n${konteks}`,
+    `${mode === "rapat" ? SISTEM_CHAIR_RAPAT : SISTEM_CHAIR}\n\n=== KONTEKS ===\n${konteks}`,
     `Topik: ${topik}\nTingkat: ${pilihan.tingkat} (${pilihan.alasan})\n\n${isiMemo}`,
     { percobaan: 1, maksToken: 4096 },
   );
-  const { ringkasan, syarat } = pisahSyarat(chair.teks);
+  const { ringkasan, syarat, memori } = pisahSyarat(chair.teks);
   const salah = angkaTakBerdasar(ringkasan, `${konteks}\n${topik}`);
   const dokumen = [
-    `# Sidang board — ${topik.slice(0, 120)}`,
+    `# ${mode === "rapat" ? "Rapat direksi" : "Sidang board"} — ${topik.slice(0, 120)}`,
     `Tingkat: ${pilihan.tingkat} · Bidang: ${pilihan.bidang} · Alasan: ${pilihan.alasan}`,
     "",
     "## Ringkasan Chairman",
@@ -147,5 +198,5 @@ export async function sidang(topik: string, konteks: string, pilihan: PilihanBoa
     "",
     ...memo.map((m) => `## Memo ${SEAT[m.seat]}\n${m.teks}\n`),
   ].join("\n");
-  return { pilihan, ringkasan, memo, syarat, angkaTakBerdasar: salah, dokumen };
+  return { pilihan, ringkasan, memo, syarat, memori, angkaTakBerdasar: salah, dokumen };
 }

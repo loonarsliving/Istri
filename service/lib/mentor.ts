@@ -11,7 +11,7 @@ import {
 } from "./aicfo";
 import { CONTENT, type ContentFile } from "./content.generated";
 import { tanyaModel, type HasilAI, type TanyaModel } from "./gemini";
-import type { Keputusan } from "./register";
+import type { Keputusan, Memori } from "./register";
 
 /** Awalan pesan WA yang diteruskan MK Connect ke advisor (dibuang sebelum diproses). */
 export function bersihkanAwalan(pesan: string): string {
@@ -23,11 +23,17 @@ export const MENU = [
   "Tanya/diskusi bebas langsung saja, contoh: _apa fokus saya minggu ini?_",
   "",
   "*Keputusan*",
-  "• bahas: <ide/keputusan> — sidang board (ringkas 3 seat; *board penuh: …* untuk 8 seat)",
+  "• bahas: <ide/keputusan> — sidang board (ringkas 3 kursi; *board penuh: …* untuk 12 kursi)",
   "• catat keputusan: <keputusan> — dicatat PROPOSED (tambahkan _dari board 12_ bila sudah disidangkan)",
   "• bahas D-2026-008 — sidangkan keputusan yang sudah dicatat",
   "• konfirmasi D-2026-008 — sahkan (CONFIRMED) setelah dibahas",
   "• keputusan saya — daftar & status",
+  "",
+  "*Direksi & memori* (pakai awalan *advisor*)",
+  "• advisor rapat direksi — rapat 12 kursi sekarang (otomatis tiap tanggal 1)",
+  "• advisor ingat: <fakta> — simpan ke memori (bisa _ingat beban: …_, _ingat hambatan: …_, _ingat pelajaran: …_)",
+  "• advisor memori — memori aktif & usulan direksi",
+  "• advisor sahkan memori 5 / semua · advisor lupakan memori 5",
   "",
   "*Lainnya* (pakai awalan *advisor*)",
   "• advisor riset: <topik> — riset pasar dengan sumber",
@@ -84,7 +90,26 @@ export function keputusanWaSebagaiTeks(daftar: Keputusan[] | null): string {
     .join("\n");
 }
 
+const LABEL_MEMORI: Record<Memori["kategori"], string> = {
+  model_bisnis: "Model bisnis",
+  beban: "Beban",
+  hambatan: "Hambatan",
+  pelajaran: "Pelajaran",
+  tujuan: "Tujuan",
+  aturan: "Aturan founder",
+  lain: "Lain",
+};
+
+/** Memori perusahaan yang disahkan founder (D-2026-008) — dibaca setiap sidang & jawaban mentor. */
+export function memoriSebagaiTeks(m: Memori[] | null): string {
+  if (m === null) return "(memori perusahaan tidak terbaca saat ini)";
+  const aktif = m.filter((x) => x.status === "aktif");
+  if (!aktif.length) return "(belum ada memori perusahaan yang disahkan founder — tanyakan hal penting tentang model bisnis, beban, dan hambatan bila relevan)";
+  return aktif.map((x) => `- [M${x.id}] ${LABEL_MEMORI[x.kategori] ?? x.kategori}: ${x.teks}`).join("\n");
+}
+
 export interface Konteks {
+  memori?: Memori[] | null;
   cfo: KonteksCfo;
   keputusan: Keputusan[] | null;
   rencana: RencanaUang | null;
@@ -94,6 +119,8 @@ export interface Konteks {
 /** Konteks bersama mentor & board: KB, keputusan, fakta AI CFO, dan (bila ada) evaluasi rencana uang. */
 export function teksKonteks(k: Konteks, maksKb = 40000): string {
   return [
+    "=== MEMORI PERUSAHAAN (disahkan founder; kutip [M..] bila dipakai) ===",
+    memoriSebagaiTeks(k.memori ?? null),
     "=== STANDAR ===",
     gabung(CONTENT.standar, 15000),
     "=== KNOWLEDGE BASE (HISTORICAL/NEEDS DATA) ===",
@@ -113,7 +140,8 @@ export function teksKonteks(k: Konteks, maksKb = 40000): string {
 export function sistemMentor(k: Konteks | KonteksCfo): string {
   const konteks: Konteks = "fakta" in k ? { cfo: k, keputusan: null, rencana: null, evaluasi: null } : k;
   return [
-    "Kamu adalah LOONARS AI ADVISOR — mentor pribadi founder Loonars, menjawab lewat WhatsApp.",
+    "Kamu adalah LOONARS AI ADVISOR — mentor pribadi founder Loonars Mahakarya, menjawab lewat WhatsApp. Tujuan jangka panjang founder: perusahaan sampai IPO; founder 15 tahun berbisnis tanpa mentor — bantu ia menghindari kesalahan yang berulang.",
+    "- Pakai MEMORI PERUSAHAAN (fakta yang sudah disahkan founder). Bila founder menyebut fakta penting baru tentang bisnis, beban, hambatan, atau kesalahan masa lalu, sarankan ia menyimpannya: *advisor ingat: …*.",
     "Ikuti instruksi skill mentor di bawah (karakter, proses, batasan). Ringkasan aturan yang WAJIB:",
     "- Objektif & kritis; berani bilang ide buruk. Utamakan kas, margin, sistem di atas pertumbuhan semu.",
     "- Klasifikasikan masalah: strategis / operasional / keuangan / organisasi / eksekusi.",
@@ -142,17 +170,19 @@ export interface DepsMentor {
   tanyaModel: TanyaModel;
   evaluasiCfo?: typeof evaluasiCfo;
   daftarKeputusan?: () => Promise<Keputusan[]>;
+  daftarMemori?: () => Promise<Memori[]>;
 }
 
 /** Kumpulkan konteks: fakta AI CFO, register keputusan, dan evaluasi AI CFO bila pesan menyebut uang keluar. */
 export async function kumpulkanKonteks(pesan: string, deps: DepsMentor): Promise<Konteks> {
   const rencana = rencanaDariPesan(pesan);
-  const [cfo, keputusan, evaluasi] = await Promise.all([
+  const [cfo, keputusan, evaluasi, memori] = await Promise.all([
     deps.ambilFaktaCfo(),
     deps.daftarKeputusan ? deps.daftarKeputusan().catch(() => null) : Promise.resolve(null),
     rencana && deps.evaluasiCfo ? deps.evaluasiCfo(rencana) : Promise.resolve(null),
+    deps.daftarMemori ? deps.daftarMemori().catch(() => null) : Promise.resolve(null),
   ]);
-  return { cfo, keputusan, rencana, evaluasi };
+  return { cfo, keputusan, rencana, evaluasi, memori };
 }
 
 /** Mentor ber-Gemini Pro + penjaga angka (satu kali tulis ulang, lalu peringatan). */

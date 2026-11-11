@@ -55,6 +55,18 @@ export interface Keputusan {
   syarat: Syarat[];
 }
 
+export type KategoriMemori = "model_bisnis" | "beban" | "hambatan" | "pelajaran" | "tujuan" | "aturan" | "lain";
+export const KATEGORI_MEMORI: KategoriMemori[] = ["model_bisnis", "beban", "hambatan", "pelajaran", "tujuan", "aturan", "lain"];
+
+export interface Memori {
+  id: number;
+  kategori: KategoriMemori;
+  teks: string;
+  status: "usulan" | "aktif" | "arsip";
+  sumber: string;
+  dibuat: string;
+}
+
 export interface IsianKeputusan {
   id?: string;
   judul: string;
@@ -76,6 +88,11 @@ export const register = (r: Rpc = rpc) => ({
   dokumenTerbaru: (n = 10) => r<{ id: number; jenis: string; judul: string; dibuat: string }[]>("advisor_dokumen_terbaru", { p_jumlah: n }),
   setel: (kunci: string, nilai: string) => r<null>("advisor_pengaturan_set", { p_kunci: kunci, p_nilai: nilai }),
   ambil: (kunci: string) => r<string | null>("advisor_pengaturan_get", { p_kunci: kunci }),
+  memoriTambah: (kategori: KategoriMemori, teks: string, status: "usulan" | "aktif", sumber: string) =>
+    r<number>("advisor_memori_tambah", { p_kategori: kategori, p_teks: teks.slice(0, 1000), p_status: status, p_sumber: sumber.slice(0, 80) }),
+  memoriUbah: (id: number, status: "aktif" | "arsip") => r<{ id: number; status: string; ada: boolean }>("advisor_memori_ubah", { p_id: id, p_status: status }),
+  /** Tanpa status = aktif + usulan. */
+  memoriDaftar: (status?: Memori["status"]) => r<Memori[]>("advisor_memori_daftar", { p_status: status ?? null }),
 });
 
 export type Register = ReturnType<typeof register>;

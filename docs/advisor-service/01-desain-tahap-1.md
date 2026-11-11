@@ -48,7 +48,7 @@ Prompt mentor (port dari `.claude/skills/loonars-mentor`), knowledge base di
 ≤ 5 baris di WA + tautan. Uji A/B buta 10 pertanyaan sebelum dikunci.
 
 ## Tahap 3 — Board via WA
-8 seat (lensa dari `.claude/skills/loonars-board/seats/`), chair summary 10
+12 seat (D-2026-008; lensa dari `.claude/skills/loonars-board/seats/`), chair summary 10
 bagian, dokumen di `/advisor`. Riset pasar tetap via Claude Code sampai URL
 grounding tersimpan per fakta (syarat Market Intelligence).
 

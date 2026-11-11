@@ -13,6 +13,7 @@ ketiga, rekening, atau angka sensitif.
 | D-2026-005 | 2026-11-11 | Advisor mandiri (opsi A) + kunci Gemini Pro khusus advisor, batas Rp 200 rb/bulan; AI MK Connect yang ada tidak diubah | Advisor | CONFIRMED | 2027-02-11 |
 | D-2026-006 | 2026-11-11 | Aktifkan Gemini Pro untuk advisor meski AI CFO "tolak"; sistem berjalan tetap Flash-Lite | Advisor | CONFIRMED | 2026-12-11 |
 | D-2026-007 | 2026-11-11 | Semua fitur advisor lewat layanan advisor (WA); pertanyaan bebas owner otomatis ke advisor | Advisor | CONFIRMED | 2026-12-11 |
+| D-2026-008 | 2026-11-11 | Direksi AI 12 kursi menuju IPO + memori perusahaan + rapat direksi bulanan | Holding | CONFIRMED | 2027-02-11 |
 
 "IMPORTED" = keputusan owner yang tercatat di repo Mkhsistem, belum
 didokumentasikan lengkap dengan 11 field dan belum dikonfirmasi ulang di sini.

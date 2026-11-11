@@ -1,9 +1,10 @@
 ---
 name: loonars-board
 description: >-
-  AI Board of Directors Loonars: delapan seat (Chairman, CEO Advisor, CFO
+  AI Board of Directors Loonars: dua belas seat (Chairman, CEO Advisor, CFO
   Advisor, Investment Advisor, Market Intelligence, Consumer Panel, Marketing
-  Director, Operations Director), masing-masing sub-agent dengan lens sendiri,
+  Director, Operations Director, Tata Kelola & Komisaris Independen, Hukum/Pajak
+  & Kepatuhan, SDM & Organisasi, Pasar Modal & IPO — D-2026-008), masing-masing sub-agent dengan lens sendiri,
   memberi skor, risiko yang bisa membunuh rencana, dan vote APPROVE / APPROVE
   IF / REJECT, lalu chair summary 10 bagian. CFO Advisor memakai AI CFO MKH
   Property. Pakai saat founder bilang "bawa ke board", "uji keputusan ini",
@@ -42,7 +43,7 @@ yang semua setuju tidak bekerja. Pertahankan ketidaksepakatan.
    **Semua keputusan founder dibahas board**, termasuk yang kecil dan yang
    bukan soal uang (SDM, operasional, tamu, brand, hukum, sistem).
    `--ringkas` = 3 seat dari tabel bidang di kebijakan; default/`--standar` =
-   8 seat; `--penuh` = 8 seat + `/business-feasibility` + AI CFO;
+   12 seat; `--penuh` = 12 seat + `/business-feasibility` + AI CFO;
    `--seats` = daftar eksplisit. Bila kriteria eskalasi terpenuhi, naikkan
    tingkat dan katakan alasannya; jangan pernah menurunkan tingkat yang dipicu.
    (`--quick` = alias `--ringkas`.) Seat **Consumer Panel** tidak
@@ -71,6 +72,6 @@ yang semua setuju tidak bekerja. Pertahankan ketidaksepakatan.
 - Angka hanya dari AI CFO, tool, atau input berlabel. Seat tidak boleh
   mengarang market size, harga kompetitor, atau biaya.
 - Board tidak memutuskan. Founder memutuskan.
-- Biaya: Ringkas ± 3 sub-agent, Standar 8; sebutkan tingkat & alasannya
+- Biaya: Ringkas ± 3 sub-agent, Standar 12; sebutkan tingkat & alasannya
   sebelum sidang. Tingkat Ringkas tetap memakai format chair summary, cukup
   lebih pendek per bagian.

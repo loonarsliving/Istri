@@ -4,10 +4,10 @@ import { rencanaDariPesan } from "@/lib/aicfo";
 import { pilihBoard, pisahSyarat, sistemSeat } from "@/lib/board";
 import { bagiPesan, kenali, proses, susunPengingat, type DepsFitur } from "@/lib/fitur";
 import { sumberDariRespons, bacaJson, type OpsiModel } from "@/lib/gemini";
-import type { Keputusan, Register } from "@/lib/register";
+import type { KategoriMemori, Keputusan, Register } from "@/lib/register";
 
 function regPalsu(awal: Keputusan[] = []) {
-  const db = { keputusan: [...awal], dokumen: [] as { id: number; jenis: string; judul: string; isi: string; dibuat: string }[], set: {} as Record<string, string>, log: [] as string[] };
+  const db = { memori: [] as { id: number; kategori: KategoriMemori; teks: string; status: "usulan" | "aktif" | "arsip"; sumber: string; dibuat: string }[], keputusan: [...awal], dokumen: [] as { id: number; jenis: string; judul: string; isi: string; dibuat: string }[], set: {} as Record<string, string>, log: [] as string[] };
   const reg: Register = {
     daftar: async () => db.keputusan,
     simpan: async (k) => {
@@ -39,6 +39,17 @@ function regPalsu(awal: Keputusan[] = []) {
       return null;
     },
     ambil: async (k) => db.set[k] ?? null,
+    memoriTambah: async (kategori, teks, status, sumber) => {
+      const id = db.memori.length + 1;
+      db.memori.push({ id, kategori, teks, status, sumber, dibuat: "2026-11-11" });
+      return id;
+    },
+    memoriUbah: async (id, status) => {
+      const m = db.memori.find((x) => x.id === id);
+      if (m) m.status = status;
+      return { id, status, ada: Boolean(m) };
+    },
+    memoriDaftar: async (status) => db.memori.filter((m) => (status ? m.status === status : m.status !== "arsip")),
   };
   return { db, reg };
 }
@@ -50,6 +61,7 @@ function deps(reg: Register, jawabModel: (sistem: string, pengguna: string, opsi
     ambilFaktaCfo: async () => ({ tersedia: true, hariIni: "2026-11-11", fakta: [], catatan: "" }),
     evaluasiCfo: async () => ({ tersedia: true, catatan: "", putusan: "aman", ringkas: "aman", alasan: [], alternatif: [], maksAmanSekarang: 0, tundaAmanHari: null }),
     daftarKeputusan: () => reg.daftar(),
+    daftarMemori: () => reg.memoriDaftar(),
     tanyaModel: async (sistem, pengguna, opsi) => {
       panggilan.push(sistem.slice(0, 60));
       return { teks: jawabModel(sistem, pengguna, opsi), model: "m", tokenMasuk: 1, tokenKeluar: 1, cadangan: false, sumber: opsi?.cari ? [{ judul: "Contoh", url: "https://contoh.id/a" }] : undefined };
@@ -76,9 +88,14 @@ describe("pemilihan board (decision-review-policy)", () => {
   it("ringkas 3 seat menurut bidang, naik ke 8 seat bila eskalasi", () => {
     expect(pilihBoard("ganti desain logo dan konten instagram")).toMatchObject({ tingkat: "Ringkas", bidang: "Brand & marketing" });
     expect(pilihBoard("ganti desain logo").seat).toHaveLength(3);
-    expect(pilihBoard("rekrut karyawan baru").seat).toHaveLength(8);
+    expect(pilihBoard("rekrut karyawan baru").seat).toHaveLength(12);
+    expect(pilihBoard("persiapan IPO 2030")).toMatchObject({ bidang: "IPO & pasar modal", tingkat: "Standar" });
     expect(pilihBoard("beli kasur", { putusanCfo: "tolak" }).tingkat).toBe("Penuh");
-    expect(pilihBoard("apa strategi kita", { penuh: true }).seat).toHaveLength(8);
+    expect(pilihBoard("apa strategi kita", { penuh: true }).seat).toHaveLength(12);
+    expect(pilihBoard("perlu cek kontrak notaris").seat).toEqual(expect.arrayContaining(["legal-compliance", "governance"]));
+  });
+  it("12 kursi punya lens masing-masing", () => {
+    for (const k of ["governance", "legal-compliance", "people-organization", "capital-markets"] as const) expect(sistemSeat(k, "").length).toBeGreaterThan(800);
   });
   it("lens seat dan format memo masuk ke prompt", () => {
     const s = sistemSeat("cfo-advisor", "KONTEKS");
@@ -89,6 +106,9 @@ describe("pemilihan board (decision-review-policy)", () => {
     const r = pisahSyarat('*Putusan board*: APPROVE IF\nSYARAT_JSON: [{"teks":"Uji 1 kamar dulu","tenggat":"2026-12-01"},{"teks":"x"}]');
     expect(r.ringkasan).toBe("*Putusan board*: APPROVE IF");
     expect(r.syarat).toEqual([{ teks: "Uji 1 kamar dulu", tenggat: "2026-12-01" }]);
+    const r2 = pisahSyarat('*Putusan*: APPROVE\nSYARAT_JSON: []\nMEMORI_JSON: [{"kategori":"beban","teks":"Gaji holding beban tetap terbesar"},{"kategori":"aneh","teks":"Founder memutuskan sendiri"}]');
+    expect(r2.ringkasan).toBe("*Putusan*: APPROVE");
+    expect(r2.memori).toEqual([{ kategori: "beban", teks: "Gaji holding beban tetap terbesar" }, { kategori: "lain", teks: "Founder memutuskan sendiri" }]);
   });
 });
 
@@ -143,6 +163,39 @@ describe("alur keputusan via WA", () => {
     const p = await susunPengingat(reg, "2026-11-11");
     expect(p).toContain("Cek okupansi");
     expect(p).toContain("waktunya ditinjau");
+  });
+});
+
+describe("memori perusahaan & rapat direksi", () => {
+  it("ingat → aktif; board mengusulkan → sahkan; memori masuk ke prompt", async () => {
+    const { db, reg } = regPalsu();
+    const sistemTerakhir: string[] = [];
+    const d = deps(reg, (sistem) => {
+      sistemTerakhir.push(sistem);
+      if (sistem.startsWith("Kamu Chairman")) return '*Putusan board*: APPROVE\nSYARAT_JSON: []\nMEMORI_JSON: [{"kategori":"hambatan","teks":"Semua keputusan menunggu founder"}]';
+      return "memo";
+    });
+    expect(kenali("advisor ingat beban: gaji holding paling berat")).toEqual({ jenis: "ingat", kategori: "beban", teks: "gaji holding paling berat" });
+    expect((await proses("advisor ingat beban: gaji holding paling berat", d))[0]).toContain("memori #1");
+    const [sid] = await proses("bahas: ganti logo dan konten instagram", d);
+    expect(sid).toContain("Usulan memori dari direksi");
+    expect(db.memori[1]).toMatchObject({ status: "usulan", sumber: "board #1" });
+    expect(sistemTerakhir.some((x) => x.includes("[M1] Beban: gaji holding paling berat"))).toBe(true);
+    expect((await proses("advisor sahkan memori semua", d))[0]).toContain("1 usulan memori disahkan");
+    expect(db.memori[1].status).toBe("aktif");
+    expect((await proses("advisor lupakan memori 1", d))[0]).toContain("diarsipkan");
+    expect((await proses("advisor memori", d))[0]).not.toContain("gaji holding");
+  });
+  it("rapat direksi memanggil 12 kursi + chair notulen", async () => {
+    const { db, reg } = regPalsu();
+    const panggil: string[] = [];
+    const d = deps(reg, (sistem) => (sistem.startsWith("Kamu Chairman") ? "*Kondisi bulan ini* ...\nSYARAT_JSON: []\nMEMORI_JSON: []" : "memo"), panggil);
+    expect(kenali("advisor rapat direksi").jenis).toBe("rapat");
+    const [n] = await proses("advisor rapat direksi", d);
+    expect(n).toContain("Rapat direksi");
+    expect(panggil.filter((p) => p.startsWith("Kamu adalah seat"))).toHaveLength(12);
+    expect(panggil.some((p) => p.startsWith("Kamu Chairman AI Board Loonars Mahakarya. Susun NOTULEN"))).toBe(true);
+    expect(db.dokumen[0].judul).toContain("Rapat direksi");
   });
 });
 

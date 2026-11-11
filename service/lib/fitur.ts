@@ -1,10 +1,10 @@
 import { ambilFaktaCfo, evaluasiCfo } from "./aicfo";
 import { angkaTakBerdasar } from "./angka";
-import { pilihBoard, sidang } from "./board";
+import { SEMUA_SEAT, pilihBoard, sidang, type HasilBoard } from "./board";
 import { CONTENT } from "./content.generated";
 import { bacaJson, tanyaModel, type TanyaModel } from "./gemini";
 import { MENU, bersihkanAwalan, daftarKeputusan, daftarKeputusanDb, jawab, kumpulkanKonteks, teksKonteks, type DepsMentor } from "./mentor";
-import { register, type Keputusan, type Register } from "./register";
+import { KATEGORI_MEMORI, register, type KategoriMemori, type Keputusan, type Register } from "./register";
 
 /**
  * Router fitur advisor via WA (D-2026-007). Mengembalikan satu atau lebih
@@ -24,6 +24,7 @@ export function depsBawaan(): DepsFitur {
     evaluasiCfo,
     tanyaModel,
     daftarKeputusan: () => reg.daftar(),
+    daftarMemori: () => reg.memoriDaftar(),
     hariIni: () => new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Jakarta" }),
   };
 }
@@ -42,7 +43,24 @@ export type Perintah =
   | { jenis: "dokumen" }
   | { jenis: "syarat" }
   | { jenis: "syarat_ubah"; id: number; status: "selesai" | "batal" | "terbuka" }
+  | { jenis: "ingat"; kategori: KategoriMemori; teks: string }
+  | { jenis: "memori" }
+  | { jenis: "memori_ubah"; id: number | "semua"; status: "aktif" | "arsip" }
+  | { jenis: "rapat" }
   | { jenis: "bebas"; teks: string };
+
+const ALIAS_KATEGORI: Record<string, KategoriMemori> = {
+  "model bisnis": "model_bisnis",
+  bisnis: "model_bisnis",
+  beban: "beban",
+  hambatan: "hambatan",
+  kendala: "hambatan",
+  pelajaran: "pelajaran",
+  kesalahan: "pelajaran",
+  tujuan: "tujuan",
+  target: "tujuan",
+  aturan: "aturan",
+};
 
 /** Kenali perintah (deterministik). Apa pun yang lain = diskusi bebas ke mentor. */
 export function kenali(pesanMentah: string): Perintah {
@@ -66,6 +84,12 @@ export function kenali(pesanMentah: string): Perintah {
   if (/^syarat( terbuka)?$/.test(t)) return { jenis: "syarat" };
   m = /^syarat\s+(selesai|batal|buka)\s+#?(\d+)$/i.exec(t);
   if (m) return { jenis: "syarat_ubah", id: Number(m[2]), status: m[1] === "buka" ? "terbuka" : (m[1] as "selesai" | "batal") };
+  m = /^ingat(?:\s+(model bisnis|bisnis|beban|hambatan|kendala|pelajaran|kesalahan|tujuan|target|aturan))?\s*[:\-]\s*([\s\S]{3,})$/i.exec(p);
+  if (m) return { jenis: "ingat", kategori: m[1] ? ALIAS_KATEGORI[m[1].toLowerCase()] : "lain", teks: m[2].trim() };
+  if (/^memori( perusahaan)?$/.test(t)) return { jenis: "memori" };
+  m = /^(sahkan|lupakan|arsipkan)\s+memori\s+(#?\d+|semua)$/i.exec(t);
+  if (m) return { jenis: "memori_ubah", id: m[2] === "semua" ? "semua" : Number(m[2].replace("#", "")), status: m[1] === "sahkan" ? "aktif" : "arsip" };
+  if (/^rapat( direksi| board)?( bulanan)?$/.test(t)) return { jenis: "rapat" };
   return { jenis: "bebas", teks: p };
 }
 
@@ -86,6 +110,31 @@ export function bagiPesan(teks: string, maks = 3300, bagian = 4): string[] {
   }
   if (sisa) out[out.length - 1] += "\n\n… (masih ada lanjutan; isi lengkap tersimpan di register)";
   return out.map((o, i, a) => (a.length > 1 ? `(${i + 1}/${a.length})\n${o}` : o));
+}
+
+function teksMemori(daftar: { id: number; kategori: string; teks: string; status: string }[]): string {
+  if (!daftar.length) return "🧠 Memori perusahaan masih kosong. Mulai dengan *advisor ingat: …* — misalnya model bisnis, beban terbesar, atau kesalahan yang tidak ingin diulang.";
+  const aktif = daftar.filter((m) => m.status === "aktif");
+  const usulan = daftar.filter((m) => m.status === "usulan");
+  return [
+    "🧠 *Memori perusahaan*",
+    ...aktif.map((m) => `• #${m.id} [${m.kategori.replace("_", " ")}] ${m.teks}`),
+    ...(usulan.length ? ["", "*Usulan direksi (belum disahkan)*", ...usulan.map((m) => `• #${m.id} [${m.kategori.replace("_", " ")}] ${m.teks}`), "", "Sahkan: *advisor sahkan memori <nomor>* atau *semua*. Tolak: *advisor lupakan memori <nomor>*."] : []),
+  ].join("\n");
+}
+
+/** Simpan usulan memori dari board (status usulan — founder yang mengesahkan). */
+async function simpanUsulanMemori(h: HasilBoard, idDok: number, deps: DepsFitur): Promise<string> {
+  const id: number[] = [];
+  for (const m of h.memori) {
+    try {
+      id.push(await deps.reg.memoriTambah(m.kategori, m.teks, "usulan", `board #${idDok}`));
+    } catch (e) {
+      console.error("usulan memori gagal", e);
+    }
+  }
+  if (!id.length) return "";
+  return ["", "🧠 *Usulan memori dari direksi*", ...h.memori.slice(0, id.length).map((m, i) => `• #${id[i]} ${m.teks}`), `Sahkan: *advisor sahkan memori ${id.join(" / ")}* atau *semua*.`].join("\n");
 }
 
 function cari(daftar: Keputusan[], id: string): Keputusan | undefined {
@@ -140,6 +189,25 @@ export async function proses(pesanMentah: string, deps: DepsFitur = depsBawaan()
       await deps.reg.syaratUbah(cmd.id, cmd.status);
       return [`✅ Syarat #${cmd.id} ditandai *${cmd.status}*.`];
     }
+    case "ingat": {
+      const id = await deps.reg.memoriTambah(cmd.kategori, cmd.teks, "aktif", "founder");
+      return [`🧠 Diingat sebagai memori #${id} (${cmd.kategori.replace("_", " ")}). Direksi akan memakainya di setiap sidang.`];
+    }
+    case "memori":
+      return bagiPesan(teksMemori(await deps.reg.memoriDaftar()));
+    case "memori_ubah": {
+      if (cmd.id === "semua") {
+        if (cmd.status !== "aktif") return ["Untuk melupakan, sebut nomornya satu per satu: *advisor lupakan memori 5*."];
+        const usulan = await deps.reg.memoriDaftar("usulan");
+        for (const m of usulan) await deps.reg.memoriUbah(m.id, "aktif");
+        return [usulan.length ? `✅ ${usulan.length} usulan memori disahkan.` : "Tidak ada usulan memori."];
+      }
+      const h = await deps.reg.memoriUbah(cmd.id, cmd.status);
+      if (!h.ada) return [`Memori #${cmd.id} tidak ada.`];
+      return [cmd.status === "aktif" ? `✅ Memori #${cmd.id} disahkan.` : `🗑️ Memori #${cmd.id} diarsipkan (tidak dipakai lagi).`];
+    }
+    case "rapat":
+      return rapat(deps);
     case "bebas":
       return [(await jawab(cmd.teks, deps)).teks];
   }
@@ -191,17 +259,35 @@ async function bahas(topik: string, penuh: boolean, keputusan: Keputusan | null,
     h.angkaTakBerdasar.length ? "⚠️ Ada angka yang tidak ditemukan di data AI CFO/knowledge base — cek sebelum dipakai." : "",
     !k.cfo.tersedia ? "ℹ️ AI CFO sedang tidak terbaca — angka keuangan belum dipakai." : "",
   ].filter(Boolean);
-  return [
+  const usulan = await simpanUsulanMemori(h, idDok, deps);
+  return bagiPesan(
     [
-      `🏛️ *Sidang board — ${pilihan.tingkat}* (${pilihan.seat.length} seat, ${pilihan.alasan})`,
+      `🏛️ *Sidang board — ${pilihan.tingkat}* (${pilihan.seat.length} kursi, ${pilihan.alasan})`,
       "",
       h.ringkasan,
       ...catatan,
+      usulan,
       "",
       `Memo lengkap: *advisor detail ${idDok}*`,
       penutup,
     ].join("\n"),
-  ];
+  );
+}
+
+/** Rapat direksi bulanan (12 kursi) — dipanggil cron tanggal 1 atau "advisor rapat direksi". */
+export async function rapat(deps: DepsFitur): Promise<string[]> {
+  const bulan = new Date().toLocaleDateString("id-ID", { timeZone: "Asia/Jakarta", month: "long", year: "numeric" });
+  const topik = `Rapat direksi bulanan ${bulan}: tinjau kondisi kas & arah (AI CFO), keputusan dan syarat yang waktunya ditinjau, tiga penghambat terbesar perkembangan Loonars Mahakarya, dan langkah bulan depan menuju kesiapan IPO.`;
+  const k = await kumpulkanKonteks(topik, deps);
+  const pilihan = { bidang: "Rapat direksi", tingkat: "Standar" as const, seat: SEMUA_SEAT, alasan: "rapat bulanan" };
+  const h = await sidang(topik, teksKonteks(k, 20000), pilihan, deps.tanyaModel, "rapat");
+  const idDok = await deps.reg.dokumenSimpan("board", `Rapat direksi ${bulan}`, h.dokumen);
+  const usulan = await simpanUsulanMemori(h, idDok, deps);
+  const catatan = [
+    h.angkaTakBerdasar.length ? "⚠️ Ada angka yang tidak ditemukan di data AI CFO/knowledge base — cek sebelum dipakai." : "",
+    !k.cfo.tersedia ? "ℹ️ AI CFO sedang tidak terbaca — kondisi kas belum dipakai." : "",
+  ].filter(Boolean);
+  return bagiPesan([`🏛️ *Rapat direksi — ${bulan}* (${SEMUA_SEAT.length} kursi)`, "", h.ringkasan, ...catatan, usulan, "", `Notulen & memo lengkap: *advisor detail ${idDok}*`].join("\n"));
 }
 
 const SISTEM_CATAT = [

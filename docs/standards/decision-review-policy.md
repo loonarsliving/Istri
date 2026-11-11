@@ -28,8 +28,8 @@ Semua keputusan dibahas. Yang berbeda hanya kedalamannya:
 | Tingkat | Siapa yang membahas | Waktu/biaya |
 | --- | --- | --- |
 | **Ringkas** | Mentor + 3 seat board paling relevan untuk bidang itu (`/loonars-board --ringkas`) | ± 3 sub-agent |
-| **Standar** | Board lengkap 8 seat | 8 sub-agent |
-| **Penuh** | Board lengkap + `/business-feasibility` + konsultasi AI CFO | 8+ sub-agent + simulasi |
+| **Standar** | Board lengkap 12 seat (D-2026-008) | 12 sub-agent |
+| **Penuh** | Board lengkap + `/business-feasibility` + konsultasi AI CFO | 12+ sub-agent + simulasi |
 
 Minimal **Ringkas** untuk setiap keputusan. Naik ke **Standar** bila ada
 **salah satu** dari ini:
@@ -40,7 +40,7 @@ Minimal **Ringkas** untuk setiap keputusan. Naik ke **Standar** bila ada
 - keputusan serupa pernah hasilnya buruk (`decisions/`).
 
 Naik ke **Penuh** bila: AI CFO memberi putusan TIDAK MENYARANKAN / tolak;
-ekspansi, lini baru, investor baru, utang baru, jual aset; atau founder
+ekspansi, lini baru, investor baru, utang baru, jual aset, langkah IPO; atau founder
 memintanya. Founder selalu boleh meminta tingkat yang lebih dalam; advisor
 tidak boleh menurunkan tingkat yang sudah dipicu kriteria di atas.
 
@@ -48,13 +48,15 @@ tidak boleh menurunkan tingkat yang sudah dipicu kriteria di atas.
 
 | Bidang | 3 seat |
 | --- | --- |
+| IPO & pasar modal | Pasar Modal & IPO, Tata Kelola, CFO Advisor |
 | Keuangan | CFO Advisor, Chairman, Investment Advisor |
-| SDM & organisasi | CEO Advisor, Operations Director, Chairman |
+| Tata kelola | Tata Kelola, Chairman, CFO Advisor |
+| SDM & organisasi | SDM & Organisasi, CEO Advisor, Operations Director |
 | Operasional & SOP | Operations Director, CFO Advisor, Consumer Panel* |
 | Tamu & pelayanan | Consumer Panel*, Operations Director, Marketing Director |
 | Brand & marketing | Marketing Director, Market Intelligence, Consumer Panel* |
-| Investor & kemitraan | Investment Advisor, Chairman, CFO Advisor |
-| Hukum & kepatuhan | Chairman, CFO Advisor, Operations Director |
+| Investor & kemitraan | Investment Advisor, Pasar Modal & IPO, CFO Advisor |
+| Hukum & kepatuhan | Hukum/Pajak & Kepatuhan, Tata Kelola, CFO Advisor |
 | Sistem & teknologi | Operations Director, CEO Advisor, CFO Advisor |
 | Strategi | Chairman, CEO Advisor, CFO Advisor |
 
