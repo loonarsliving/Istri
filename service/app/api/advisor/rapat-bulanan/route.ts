@@ -5,7 +5,7 @@ import { kirimWa } from "@/lib/wa";
 
 /**
  * GET /api/advisor/rapat-bulanan — Vercel Cron tanggal 1 tiap bulan (D-2026-008).
- * Rapat direksi semua kursi (13), notulen dikirim ke WA owner. Fail closed tanpa CRON_SECRET.
+ * Rapat direksi semua kursi (14), notulen dikirim ke WA owner. Fail closed tanpa CRON_SECRET.
  */
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

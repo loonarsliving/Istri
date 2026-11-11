@@ -1,11 +1,11 @@
 ---
 name: loonars-board
 description: >-
-  AI Board of Directors Loonars: tiga belas seat (Chairman, CEO Advisor, CFO
+  AI Board of Directors Loonars: empat belas seat (Chairman, CEO Advisor, CFO
   Advisor, Investment Advisor, Market Intelligence, Consumer Panel, Marketing
   Director, Operations Director, Tata Kelola & Komisaris Independen, Hukum/Pajak
   & Kepatuhan, SDM & Organisasi, Pasar Modal & IPO — D-2026-008; Manager
-  Hospitality AI — D-2026-009), masing-masing sub-agent dengan lens sendiri,
+  Hospitality AI — D-2026-009; Direksi Capital Office — D-2026-010), masing-masing sub-agent dengan lens sendiri,
   memberi skor, risiko yang bisa membunuh rencana, dan vote APPROVE / APPROVE
   IF / REJECT, lalu chair summary 10 bagian. CFO Advisor memakai AI CFO MKH
   Property. Pakai saat founder bilang "bawa ke board", "uji keputusan ini",
@@ -44,7 +44,7 @@ yang semua setuju tidak bekerja. Pertahankan ketidaksepakatan.
    **Semua keputusan founder dibahas board**, termasuk yang kecil dan yang
    bukan soal uang (SDM, operasional, tamu, brand, hukum, sistem).
    `--ringkas` = 3 seat dari tabel bidang di kebijakan; default/`--standar` =
-   13 seat; `--penuh` = 13 seat + `/business-feasibility` + AI CFO;
+   14 seat; `--penuh` = 14 seat + `/business-feasibility` + AI CFO;
    `--seats` = daftar eksplisit. Bila kriteria eskalasi terpenuhi, naikkan
    tingkat dan katakan alasannya; jangan pernah menurunkan tingkat yang dipicu.
    (`--quick` = alias `--ringkas`.) Seat **Consumer Panel** tidak
@@ -73,6 +73,6 @@ yang semua setuju tidak bekerja. Pertahankan ketidaksepakatan.
 - Angka hanya dari AI CFO, tool, atau input berlabel. Seat tidak boleh
   mengarang market size, harga kompetitor, atau biaya.
 - Board tidak memutuskan. Founder memutuskan.
-- Biaya: Ringkas ± 3 sub-agent, Standar 13; sebutkan tingkat & alasannya
+- Biaya: Ringkas ± 3 sub-agent, Standar 14; sebutkan tingkat & alasannya
   sebelum sidang. Tingkat Ringkas tetap memakai format chair summary, cukup
   lebih pendek per bagian.

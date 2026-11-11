@@ -39,8 +39,8 @@ bergerbang rahasia. Keputusan repo D-2026-001…007 diimpor sekali (`sumber = re
 | Pesan WA | Hasil |
 | --- | --- |
 | pertanyaan/diskusi bebas | mentor Gemini Pro; bila menyebut uang keluar (Rp/juta + kata kerja belanja) → AI CFO `evaluasi` dikutip |
-| `bahas: …` / `board penuh: …` | sidang board: 3 kursi (tabel bidang) atau 13 kursi (eskalasi/diminta, D-2026-008/009) + ringkasan Chairman; memo disimpan `advisor_dokumen`; usulan memori disimpan berstatus usulan |
-| `advisor rapat direksi` | rapat 13 kursi (notulen: tindak lanjut bulan lalu, kondisi, operasional & layanan tamu, 3 penghambat, keputusan ditinjau, kesiapan IPO, 3 langkah); membaca notulen rapat sebelumnya + ringkasan hospitality MK Connect (`POST /api/advisor/hospitality`, x-advisor-bridge-secret, D-2026-009; contoh chat tamu disamarkan hanya ke kursi Manager Hospitality AI); otomatis tanggal 1 pukul 08:17 WIB (`/api/advisor/rapat-bulanan`) |
+| `bahas: …` / `board penuh: …` | sidang board: 3 kursi (tabel bidang) atau 14 kursi (eskalasi/diminta, D-2026-008/009/010) + ringkasan Chairman; memo disimpan `advisor_dokumen`; usulan memori disimpan berstatus usulan |
+| `advisor rapat direksi` | rapat 14 kursi (notulen: tindak lanjut bulan lalu, kondisi, operasional & layanan tamu, Capital Office — kesiapan pendanaan, kapan mencari investor, ke mana email sebaiknya dikirim (riset web bersumber; sistem tidak mengirim email, D-2026-010), 3 penghambat, keputusan ditinjau, kesiapan IPO, 3 langkah); membaca notulen rapat sebelumnya + ringkasan hospitality MK Connect (`POST /api/advisor/hospitality`, x-advisor-bridge-secret, D-2026-009; contoh chat tamu disamarkan hanya ke kursi Manager Hospitality AI); otomatis tanggal 1 pukul 08:17 WIB (`/api/advisor/rapat-bulanan`) |
 | `advisor ingat[ beban/hambatan/pelajaran/tujuan/aturan/model bisnis]: …` | memori perusahaan aktif (`advisor_memori`, migrasi 0074) — dibaca setiap sidang & mentor |
 | `advisor memori` · `advisor sahkan memori N/semua` · `advisor lupakan memori N` | kelola memori; usulan direksi hanya berlaku setelah disahkan |
 | `catat keputusan[ dari board N]: …` | draf 11 field → PROPOSED (nomor otomatis D-YYYY-NNN) |
@@ -52,7 +52,7 @@ bergerbang rahasia. Keputusan repo D-2026-001…007 diimpor sekali (`sumber = re
 
 Pengingat: `/api/advisor/pengingat` (cron harian) → WA ke nomor owner terakhir
 (`advisor_pengaturan.owner_wa`) bila ada syarat ≤3 hari atau keputusan waktunya ditinjau.
-Biaya kasar: satu sidang ringkas ≈ 4 panggilan Pro, sidang/rapat 13 kursi ≈ 14 panggilan
+Biaya kasar: satu sidang ringkas ≈ 4 panggilan Pro, sidang/rapat 14 kursi ≈ 15 panggilan
 (ASSUMPTION; cek tagihan Google pada tinjauan 11 Des 2026).
 
 ## Cek kesehatan

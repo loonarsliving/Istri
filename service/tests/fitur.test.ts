@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { rencanaDariPesan } from "@/lib/aicfo";
-import { pilihBoard, pisahSyarat, sistemSeat } from "@/lib/board";
+import { SISTEM_CHAIR_RAPAT, pilihBoard, pisahSyarat, sistemSeat } from "@/lib/board";
 import { bagiPesan, kenali, proses, susunPengingat, type DepsFitur } from "@/lib/fitur";
 import { sumberDariRespons, bacaJson, type OpsiModel } from "@/lib/gemini";
 import type { KategoriMemori, Keputusan, Register } from "@/lib/register";
@@ -88,16 +88,17 @@ describe("pemilihan board (decision-review-policy)", () => {
   it("ringkas 3 seat menurut bidang, naik ke 8 seat bila eskalasi", () => {
     expect(pilihBoard("ganti desain logo dan konten instagram")).toMatchObject({ tingkat: "Ringkas", bidang: "Brand & marketing" });
     expect(pilihBoard("ganti desain logo").seat).toHaveLength(3);
-    expect(pilihBoard("rekrut karyawan baru").seat).toHaveLength(13);
+    expect(pilihBoard("rekrut karyawan baru").seat).toHaveLength(14);
     expect(pilihBoard("persiapan IPO 2030")).toMatchObject({ bidang: "IPO & pasar modal", tingkat: "Standar" });
     expect(pilihBoard("beli kasur", { putusanCfo: "tolak" }).tingkat).toBe("Penuh");
-    expect(pilihBoard("apa strategi kita", { penuh: true }).seat).toHaveLength(13);
+    expect(pilihBoard("apa strategi kita", { penuh: true }).seat).toHaveLength(14);
     expect(pilihBoard("perlu cek kontrak notaris").seat).toEqual(expect.arrayContaining(["legal-compliance", "governance"]));
   });
   it("12 kursi punya lens masing-masing", () => {
-    for (const k of ["governance", "legal-compliance", "people-organization", "capital-markets", "hospitality-manager"] as const) expect(sistemSeat(k, "").length).toBeGreaterThan(800);
+    for (const k of ["governance", "legal-compliance", "people-organization", "capital-markets", "hospitality-manager", "capital-office"] as const) expect(sistemSeat(k, "").length).toBeGreaterThan(800);
     expect(pilihBoard("chat tamu lambat dibalas resepsionis").seat).toContain("hospitality-manager");
     expect(pilihBoard("cleaning sering lupa checklist kamar").seat).toContain("hospitality-manager");
+    expect(pilihBoard("kapan kita mulai cari pendanaan dari family office").seat[0]).toBe("capital-office");
   });
   it("lens seat dan format memo masuk ke prompt", () => {
     const s = sistemSeat("cfo-advisor", "KONTEKS");
@@ -221,14 +222,27 @@ describe("memori perusahaan & rapat direksi", () => {
     expect(seatCfo).not.toContain("ini rapat pertama");
   });
 
-  it("rapat direksi memanggil 13 kursi + chair notulen", async () => {
+  it("Capital Office memakai riset web; URL dari grounding ditempel ke memo, tidak ada pengiriman email", async () => {
+    const { db, reg } = regPalsu();
+    const opsiCari: boolean[] = [];
+    const d = deps(reg, (s, _p, opsi) => {
+      if (s.includes("seat Direksi Capital Office")) opsiCari.push(Boolean(opsi?.cari));
+      return s.startsWith("Kamu Chairman") ? "*Capital Office*: belum waktunya\nSYARAT_JSON: []\nMEMORI_JSON: []" : "memo";
+    });
+    await proses("advisor rapat direksi", d);
+    expect(opsiCari).toEqual([true]);
+    expect(db.dokumen[0].isi).toContain("https://contoh.id/a");
+    expect(SISTEM_CHAIR_RAPAT).toContain("Sistem tidak mengirim email");
+  });
+
+  it("rapat direksi memanggil 14 kursi + chair notulen", async () => {
     const { db, reg } = regPalsu();
     const panggil: string[] = [];
     const d = deps(reg, (sistem) => (sistem.startsWith("Kamu Chairman") ? "*Kondisi bulan ini* ...\nSYARAT_JSON: []\nMEMORI_JSON: []" : "memo"), panggil);
     expect(kenali("advisor rapat direksi").jenis).toBe("rapat");
     const [n] = await proses("advisor rapat direksi", d);
     expect(n).toContain("Rapat direksi");
-    expect(panggil.filter((p) => p.startsWith("Kamu adalah seat"))).toHaveLength(13);
+    expect(panggil.filter((p) => p.startsWith("Kamu adalah seat"))).toHaveLength(14);
     expect(panggil.some((p) => p.startsWith("Kamu Chairman AI Board Loonars Mahakarya. Susun NOTULEN"))).toBe(true);
     expect(db.dokumen[0].judul).toContain("Rapat direksi");
   });

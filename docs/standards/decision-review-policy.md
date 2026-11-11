@@ -28,8 +28,8 @@ Semua keputusan dibahas. Yang berbeda hanya kedalamannya:
 | Tingkat | Siapa yang membahas | Waktu/biaya |
 | --- | --- | --- |
 | **Ringkas** | Mentor + 3 seat board paling relevan untuk bidang itu (`/loonars-board --ringkas`) | ± 3 sub-agent |
-| **Standar** | Board lengkap 13 seat (D-2026-008/009) | 13 sub-agent |
-| **Penuh** | Board lengkap + `/business-feasibility` + konsultasi AI CFO | 13+ sub-agent + simulasi |
+| **Standar** | Board lengkap 14 seat (D-2026-008/009/010) | 14 sub-agent |
+| **Penuh** | Board lengkap + `/business-feasibility` + konsultasi AI CFO | 14+ sub-agent + simulasi |
 
 Minimal **Ringkas** untuk setiap keputusan. Naik ke **Standar** bila ada
 **salah satu** dari ini:
@@ -48,7 +48,8 @@ tidak boleh menurunkan tingkat yang sudah dipicu kriteria di atas.
 
 | Bidang | 3 seat |
 | --- | --- |
-| IPO & pasar modal | Pasar Modal & IPO, Tata Kelola, CFO Advisor |
+| IPO & pasar modal | Pasar Modal & IPO, Direksi Capital Office, Tata Kelola |
+| Pendanaan & investor | Direksi Capital Office, Investment Advisor, CFO Advisor |
 | Keuangan | CFO Advisor, Chairman, Investment Advisor |
 | Tata kelola | Tata Kelola, Chairman, CFO Advisor |
 | SDM & organisasi | SDM & Organisasi, CEO Advisor, Operations Director |

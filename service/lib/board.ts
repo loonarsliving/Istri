@@ -22,14 +22,16 @@ export const SEAT = {
   "people-organization": "SDM & Organisasi",
   "capital-markets": "Pasar Modal & IPO",
   "hospitality-manager": "Manager Hospitality AI",
+  "capital-office": "Direksi Capital Office",
 } as const;
 export type KodeSeat = keyof typeof SEAT;
 export const SEMUA_SEAT = Object.keys(SEAT) as KodeSeat[];
 
 /** Tabel "Pemilihan seat untuk tingkat Ringkas" (decision-review-policy.md). */
 const BIDANG: { nama: string; pola: RegExp; seat: [KodeSeat, KodeSeat, KodeSeat] }[] = [
-  { nama: "IPO & pasar modal", pola: /\bipo\b|go public|bursa|saham publik|pra-?ipo|pasar modal|valuasi/i, seat: ["capital-markets", "governance", "cfo-advisor"] },
-  { nama: "Investor & kemitraan", pola: /investor|mitra|kemitraan|bagi hasil|saham|equity|fundrais/i, seat: ["investment-advisor", "capital-markets", "cfo-advisor"] },
+  { nama: "IPO & pasar modal", pola: /\bipo\b|go public|bursa|saham publik|pra-?ipo|pasar modal|valuasi/i, seat: ["capital-markets", "capital-office", "governance"] },
+  { nama: "Pendanaan & investor", pola: /investor|pendanaan|fundrais|modal ventura|venture|family office|data room|investor relation/i, seat: ["capital-office", "investment-advisor", "cfo-advisor"] },
+  { nama: "Investor & kemitraan", pola: /mitra|kemitraan|bagi hasil|saham|equity/i, seat: ["investment-advisor", "capital-markets", "cfo-advisor"] },
   { nama: "Tata kelola", pola: /tata kelola|komisaris|audit|governance|pihak berelasi|rups/i, seat: ["governance", "chairman", "cfo-advisor"] },
   { nama: "Hukum & kepatuhan", pola: /hukum|legal|kontrak|pajak|izin|perizinan|notaris|sertifikat|kepatuhan/i, seat: ["legal-compliance", "governance", "cfo-advisor"] },
   { nama: "SDM & organisasi", pola: /karyawan|staf|rekrut|gaji|pecat|phk|manajer|organisasi|tim\b|sdm/i, seat: ["people-organization", "ceo-advisor", "operations-director"] },
@@ -112,6 +114,7 @@ export const SISTEM_CHAIR_RAPAT = [
   "*3 penghambat terbesar* perkembangan perusahaan (yang diangkat ≥2 seat dulu)",
   "*Keputusan yang perlu ditinjau / syarat terlambat*",
   "*Kesiapan menuju IPO*: satu kemajuan & satu celah terbesar (syarat resmi BEI/OJK = NEEDS DATA bila belum diriset)",
+  "*Capital Office*: kesiapan pendanaan (siap/sebagian/belum per butir terpenting), KAPAN waktunya mulai mencari investor (belum/hampir/siap + syarat), dan KE MANA sebaiknya email dikirim (jenis/lembaga dari sumber publik di memo Capital Office). Sistem tidak mengirim email; ini rekomendasi untuk founder.",
   "*3 langkah bulan depan* (terukur, bertanggal, siapa)",
   "*Pertanyaan direksi untuk founder* (maks 3)",
   "*Confidence*: Low/Medium/High",
@@ -184,8 +187,10 @@ export async function sidang(
   const memo = await Promise.all(
     pilihan.seat.map(async (seat) => {
       try {
-        const h = await tanya(sistemSeat(seat, ekstra[seat] ? `${konteks}\n${ekstra[seat]}` : konteks) + tugas, `Topik yang dibahas board:\n${topik}`, { percobaan: 1, maksToken: 4096 });
-        return { seat, teks: h.teks };
+        const cari = seat === "capital-office";
+        const h = await tanya(sistemSeat(seat, ekstra[seat] ? `${konteks}\n${ekstra[seat]}` : konteks) + tugas, `Topik yang dibahas board:\n${topik}`, { percobaan: 1, maksToken: 4096, cari });
+        const sumber = cari && h.sumber?.length ? `\n\nSumber web (Google Search):\n${h.sumber.map((x, i) => `${i + 1}. ${x.judul} — ${x.url}`).join("\n")}` : cari ? "\n\n(Tidak ada sumber web terbaca — nama lembaga di memo ini belum terverifikasi.)" : "";
+        return { seat, teks: h.teks + sumber };
       } catch (e) {
         console.error(`seat ${seat} gagal`, e);
         return { seat, teks: `# ${SEAT[seat]}\n(seat gagal menjawab kali ini — tidak dihitung)` };
