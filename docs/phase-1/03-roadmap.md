@@ -5,9 +5,9 @@ acceptance criteria fase sebelumnya.** Status dicatat di tabel bawah.
 
 | Fase | Status |
 | --- | --- |
-| Phase 1 — Audit | **Selesai, menunggu review founder** |
-| Phase 2 — Foundation | Belum dimulai |
-| Phase 3 — Advisory Engine | Belum dimulai |
+| Phase 1 — Audit | **Selesai, disetujui founder 2026-11-11** |
+| Phase 2 — Foundation | **Dikerjakan** (lihat checklist) |
+| Phase 3 — Advisory Engine | **Dikerjakan** (skill & tool; uji nyata menunggu data) |
 | Phase 4 — Testing | Belum dimulai |
 | Phase 5 — Future Integration (desain) | Belum dimulai |
 
@@ -25,7 +25,7 @@ Acceptance criteria:
 - [x] P1-6 Arsitektur dengan trade-off untuk keputusan besar (ADR-1..5).
 - [x] P1-7 Roadmap dengan acceptance criteria per fase.
 - [x] P1-8 Upstream tidak diubah; repo MKH/Villa tidak disentuh.
-- [ ] P1-9 Founder menyetujui ADR-1..5 dan menjawab open questions prioritas tinggi.
+- [x] P1-9 Founder menyetujui ("lanjutkan semua", 2026-11-11); ADR-3 diubah, ADR-6/7 ditambah. Open questions data tetap terbuka.
 
 ## Phase 2 — Foundation
 
@@ -41,13 +41,13 @@ Pekerjaan:
 8. `.gitignore`, secret scanning, CLAUDE.md berisi aturan kerja.
 
 Acceptance criteria:
-- [ ] P2-1 Test upstream dijalankan dan hasilnya dicatat (lulus/gagal apa adanya).
-- [ ] P2-2 `vendor/founder-skill` identik dengan upstream `fd9385b` (diff kosong) dan LICENSE ada.
-- [ ] P2-3 8 custom skill ada, masing-masing punya 5 bagian wajib; frontmatter valid.
-- [ ] P2-4 Setiap file knowledge base ada; tidak ada angka tanpa label + periode + sumber; tidak ada angka karangan (direview founder).
-- [ ] P2-5 Interface adapter tidak memiliki operasi tulis; stub produksi melempar `NotImplementedError`.
-- [ ] P2-6 Secret scan bersih; `private/` & `.env*` di-ignore.
-- [ ] P2-7 Test otomatis untuk struktur repo (frontmatter, file wajib, label data).
+- [ ] P2-1 Test upstream dijalankan — **diblokir**: kebijakan sesi menolak eksekusi kode turunan upstream (termasuk `tests/test_adapted_upstream.py`). Perlu izin founder.
+- [x] P2-2 `vendor/founder-skill` identik dengan upstream `fd9385b` (`diff -r` kosong saat vendoring) dan LICENSE ada.
+- [x] P2-3 8 custom skill + 3 skill adaptasi (mentor, board, consumer, market…) dengan 5 bagian wajib; diuji `test_repo.py`.
+- [ ] P2-4 Knowledge base: semua file ada dengan status & label (diuji); **review founder belum**.
+- [x] P2-5 Adapter tanpa operasi tulis; stub melempar `NotImplementedError` (diuji `test_adapters.py`).
+- [x] P2-6 Secret scan (`test_repo.py`) bersih; `private/` & `.env*` di-ignore.
+- [x] P2-7 Test struktur repo ada.
 
 ## Phase 3 — Advisory Engine
 
@@ -59,7 +59,8 @@ Acceptance criteria:
 - [ ] P3-1 Mentor selalu mengutip file knowledge base/decision yang dibaca, dan mengklasifikasikan masalah ke 5 kategori.
 - [ ] P3-2 Board menjalankan 8 seat sebagai sub-agent; chair summary memakai format 10 bagian + confidence + unknowns; ketidaksepakatan dipertahankan.
 - [ ] P3-3 Setidaknya satu uji di mana board/mentor **menolak** ide yang buruk secara angka (anti-yes-man test).
-- [ ] P3-4 Tool finansial: unit test lulus; input kosong ditolak, bukan ditebak; output IDR.
+- [x] P3-4 `hospitality.py` & `investment.py`: 9 unit test lulus; input kosong ditolak; output IDR berlabel PROJECTION. (`unit_economics.py` adaptasi belum dijalankan — lihat P2-1.)
+- [x] P3-8 CFO seat & skill keuangan berkonsultasi ke AI CFO MKH Property (ADR-6), tidak menghitung ulang angka aktual.
 - [ ] P3-5 Worst-case & alternative model selalu muncul di output feasibility.
 - [ ] P3-6 Output consumer/competitor simulation berlabel `SIMULATED`.
 - [ ] P3-7 Keputusan hanya menjadi `CONFIRMED` setelah konfirmasi eksplisit founder (diuji).

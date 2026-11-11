@@ -1,6 +1,7 @@
 # Phase 1 — Rancangan Arsitektur Teknis
 
-Status: **DRAFT — menunggu persetujuan founder** sebelum Phase 2 dimulai.
+Status: **Disetujui founder 2026-11-11** ("lanjutkan semua"), dengan
+perubahan ADR-3 (nama repo tetap Istri) dan tambahan ADR-6/ADR-7.
 Dasar: `docs/00-master-instruction.md` dan `01-audit-founder-skill.md`.
 
 ## 1. Prinsip
@@ -43,14 +44,11 @@ dari commit `fd9385b` + LICENSE asli. Skill yang dipakai Loonars ada di
 `.claude/skills/`, masing-masing mencantumkan "Adapted from founder-skill
 (MIT) @ fd9385b" di header.
 
-### ADR-3 — Repository
+### ADR-3 — Repository — **DIPUTUSKAN founder 2026-11-11**
 
-Master instruction meminta repo baru `loonars-ai-advisor`, sedangkan founder
-meminta isi repo **Istri** dihapus dan diganti. Sesi ini tidak boleh membuat
-repo GitHub baru. **Rekomendasi:** pakai repo ini sebagai `loonars-ai-advisor`
-dan **rename** repo di GitHub (Settings → Rename) bila diinginkan; GitHub
-otomatis me-redirect URL lama. Aplikasi Catatanku lama tetap utuh di branch
-`claude/reminder-finance-app-yveciz` dan di riwayat Git (tidak ada yang hilang).
+Repo tetap bernama **Istri** selama pembangunan; di-rename menjadi
+`loonars-ai-advisor` setelah semua fase selesai (GitHub me-redirect URL lama).
+Aplikasi Catatanku lama tetap utuh di branch `claude/reminder-finance-app-yveciz`.
 
 ### ADR-4 — Lokasi knowledge base vs folder kerja upstream
 
@@ -72,6 +70,25 @@ repo hanya berisi placeholder & struktur; (c) enkripsi (git-crypt/sops).
 **Rekomendasi: (a) repo private + (b) untuk dokumen paling sensitif**
 (rekening, kontrak investor, data pribadi). Repo ini harus **private**
 (perlu dicek founder). Tidak ada credential di mana pun.
+
+### ADR-6 — AI CFO MKH Property sebagai sumber angka keuangan — **arahan founder 2026-11-11**
+
+Founder: "di MKH Sistem sudah ada AI CFO, libatkan dia". AI CFO berada di repo
+`mkh-properti` dan dipanggil dari MK Connect. Opsi: (a) advisor menghitung
+ulang angka aktual sendiri; (b) advisor berkonsultasi ke AI CFO.
+**Dipilih (b).** Menghitung ulang membuat dua sumber angka yang bisa berbeda
+— persis masalah yang ingin dicegah FRIDAY. Seat CFO Advisor = **juru bicara
+AI CFO di board**: mengutip fakta & putusannya, lalu menambahkan sudut pandang
+strategis. `tools/finance/` hanya untuk ide baru di luar buku. Detail:
+`docs/integrations/00-ekosistem-loonars.md`.
+
+### ADR-7 — Keterhubungan erat dengan villa & Mkhsistem — **arahan founder 2026-11-11**
+
+"Erat" diwujudkan sebagai **kontrak data bersama**, bukan kode bersama atau
+akses tulis: adapter advisor memakai bentuk `BusinessSnapshot` / `metrics[]`
+FRIDAY Holding, dan referensi silang ke aturan masing-masing repo. Semua akses
+read-only; tahap sekarang = ekspor manual, tahap Phase 5 = endpoint baca
+khusus. Advisor tidak pernah menulis ke villa, MK Connect, atau MKH Property.
 
 ## 3. Lapisan sistem
 
@@ -117,7 +134,7 @@ repo hanya berisi placeholder & struktur; (c) enkripsi (git-crypt/sops).
 | --- | --- | --- |
 | Chairman | baru (+ lens Monopoly upstream untuk durability) | Apakah ini sesuai arah 5–10 tahun & prioritas? Apa yang dikorbankan? |
 | CEO Advisor | baru | Bagaimana tumbuh, organisasi siapa yang menjalankan? |
-| CFO Advisor | upstream `founder-cfo` + baru | Cashflow, margin, break-even, kebutuhan kas, sensitivitas. |
+| CFO Advisor | **AI CFO MKH Property** (angka aktual, forecast, CEO challenger) + upstream `founder-cfo` (ide baru) | Cashflow, margin, break-even, kebutuhan kas, sensitivitas. Mengutip putusan AI CFO apa adanya. |
 | Investment Advisor | baru | Valuasi, struktur modal, dilusi, kesiapan investor. |
 | Market Intelligence | upstream `founder-competitors` | Siapa kompetitor, berapa harga mereka, di mana gap? |
 | Consumer Panel | upstream `founder-consumer` (hasil panel, bukan sub-agent opini) | Apa kata tamu/pembeli sintetis? (berlabel SIMULATED) |
@@ -191,10 +208,12 @@ class DataSource(Protocol):
 
 - Setiap `Records` membawa metadata: `source`, `dataset`, `period`,
   `retrieved_at`, `label` (ACTUAL/HISTORICAL). → traceability.
-- Phase 2: `ManualCsvSource` membaca CSV ekspor di `private/data/` (di-ignore).
-- Phase 5: `SupabaseSource` (kunci **read-only role**, via env var), `MkhSource`,
-  `CloudbedsSource`, `OtaSource` — hanya desain & stub yang melempar
-  `NotImplementedError`. **Tidak ada koneksi produksi** sampai founder menyetujui.
+- Phase 2: `ManualSnapshotSource` membaca ekspor/tempelan (JSON/Markdown) di
+  `private/data/` atau `analyses/<slug>/inputs/`.
+- Phase 5 (stub, melempar `NotImplementedError`): `AiCfoSource` (mkh-properti),
+  `FridayHoldingSource` (MK Connect, kontrak `BusinessSnapshot`), `VillaSource`,
+  `SupabaseSource`, `CloudbedsSource`, `OtaSource`. **Tidak ada koneksi
+  produksi** sampai founder menyetujui.
 - Tidak ada method `write/update/delete` di interface — read-only by design.
 
 ## 5. Knowledge base dan label data

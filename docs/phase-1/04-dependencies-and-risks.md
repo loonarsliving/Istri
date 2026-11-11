@@ -27,4 +27,7 @@
 | R9 | Branch ini ter-merge ke branch produksi Catatanku | Tinggi (app istri berhenti) | Rendah | Jangan merge branch ini ke `claude/reminder-finance-app-yveciz`; rekomendasi pindah ke repo terpisah atau rename. |
 | R10 | Upstream berubah / hilang | Rendah | Rendah | Vendor salinan @ commit tetap. |
 | R11 | Nasihat dianggap advice profesional (pajak, hukum, investasi) | Tinggi | Sedang | Disclaimer di setiap output; rekomendasi cek ke akuntan/notaris/legal. |
-| R12 | Test upstream belum terverifikasi | Rendah | – | Jalankan di awal Phase 2 (P2-1). |
+| R12 | Test upstream belum terverifikasi | Rendah | – | Jalankan setelah izin eksekusi (P2-1). |
+| R13 | Repo Istri **publik** (dicek 2026-11-11) — data finansial bisa terekspos | Tinggi | Tinggi bila angka di-commit | Angka aktual & data pribadi hanya di `private/`; secret scan di `test_repo.py`; rekomendasi jadikan private. |
+| R14 | Advisor & AI CFO menampilkan angka berbeda | Tinggi | Sedang | ADR-6: advisor tidak menghitung ulang angka aktual; selalu kutip `retrieved_at`. |
+| R15 | Ketergantungan pada AI CFO / MK Connect yang sedang aktif dikembangkan | Sedang | Sedang | Kontrak data tertulis (`docs/integrations/`); `unreachable` → NEEDS DATA, bukan 0. |

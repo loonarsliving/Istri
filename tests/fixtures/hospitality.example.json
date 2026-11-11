@@ -1,0 +1,27 @@
+{
+  "business": "CONTOH FIKTIF - bukan data Loonars",
+  "currency": "IDR",
+  "units": 10,
+  "months": [
+    {"month": "M01", "days": 31, "adr": 1500000, "occupancy": 0.55},
+    {"month": "M02", "days": 28, "adr": 1500000, "occupancy": 0.50},
+    {"month": "M03", "days": 31, "adr": 1500000, "occupancy": 0.55},
+    {"month": "M04", "days": 30, "adr": 1600000, "occupancy": 0.60},
+    {"month": "M05", "days": 31, "adr": 1600000, "occupancy": 0.60},
+    {"month": "M06", "days": 30, "adr": 1900000, "occupancy": 0.75},
+    {"month": "M07", "days": 31, "adr": 2100000, "occupancy": 0.85},
+    {"month": "M08", "days": 31, "adr": 2100000, "occupancy": 0.85},
+    {"month": "M09", "days": 30, "adr": 1700000, "occupancy": 0.65},
+    {"month": "M10", "days": 31, "adr": 1600000, "occupancy": 0.60},
+    {"month": "M11", "days": 30, "adr": 1500000, "occupancy": 0.55},
+    {"month": "M12", "days": 31, "adr": 2300000, "occupancy": 0.90}
+  ],
+  "channel_mix": [
+    {"channel": "OTA", "share": 0.7, "commission_pct": 0.18},
+    {"channel": "Direct", "share": 0.3, "commission_pct": 0.0}
+  ],
+  "variable_per_night": [{"label": "Housekeeping & amenities", "cost": 150000}, {"label": "Utilitas", "cost": 100000}],
+  "fixed_monthly": [{"label": "Gaji", "cost": 60000000}, {"label": "Maintenance", "cost": 15000000}],
+  "tax_pct": 0.10,
+  "capex": [{"label": "Renovasi", "cost": 300000000}]
+}

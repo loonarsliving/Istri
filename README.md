@@ -1,39 +1,77 @@
-# Loonars AI Advisor
+# Loonars AI Advisor (repo: Istri)
 
 Virtual Board of Directors, Business Mentor, Strategic Advisor, dan Business
-Intelligence Assistant untuk founder Loonars.
+Intelligence Assistant untuk founder Loonars. Nama repo tetap **Istri** sampai
+semua fase selesai, lalu di-rename.
 
-> **Status: Phase 1 (Audit) selesai — menunggu review founder.**
-> Belum ada kode advisory engine. Sesuai master instruction, implementasi
-> dimulai setelah audit dan arsitektur disetujui.
+> **Status (2026-11-11):** Phase 1 selesai & disetujui. Phase 2 (foundation)
+> dan Phase 3 (advisory engine: skill + tool) sudah dibangun. Phase 4 (uji
+> dengan kasus nyata) menunggu data dari founder/AI CFO. Phase 5 = desain.
 
-## Dokumen
+## Cara pakai (di Claude Code, dari root repo ini)
 
-| Dokumen | Isi |
+| Perintah | Untuk |
 | --- | --- |
-| [`docs/00-master-instruction.md`](docs/00-master-instruction.md) | Instruksi utama dari founder (sumber kebenaran). |
-| [`docs/phase-1/01-audit-founder-skill.md`](docs/phase-1/01-audit-founder-skill.md) | Audit repo upstream `founder-skill`: skill, tool, lisensi, gap. |
-| [`docs/phase-1/02-architecture.md`](docs/phase-1/02-architecture.md) | Arsitektur teknis + keputusan arsitektur (ADR) dengan trade-off. |
-| [`docs/phase-1/03-roadmap.md`](docs/phase-1/03-roadmap.md) | Roadmap Phase 1–5 dan acceptance criteria. |
-| [`docs/phase-1/04-dependencies-and-risks.md`](docs/phase-1/04-dependencies-and-risks.md) | Dependencies dan risk register. |
-| [`docs/phase-1/05-open-questions.md`](docs/phase-1/05-open-questions.md) | Pertanyaan dan data yang dibutuhkan dari founder. |
+| `/loonars-mentor <pertanyaan>` | Mentor pribadi: diagnosis, kritik asumsi, arah |
+| `/loonars-board <keputusan>` | Sidang 8 seat + chair summary 10 bagian |
+| `/business-feasibility <ide>` | Simulation engine 10 modul + verdict dihitung |
+| `/loonars-consumer <slug>` | Panel ≤100 tamu/pembeli sintetis (berlabel SIMULATED) |
+| `/loonars-market <slug> <area>` | Kompetitor & pasar dari sumber publik berlink |
+| `/hospitality-strategy` | Okupansi, ADR, RevPAR, OTA vs direct |
+| `/capital-allocation` | Ke mana uang berikutnya; diuji ke CEO challenger AI CFO |
+| `/investor-strategy` | Fundraising vs internal capital vs leasehold |
+| `/financial-risk-analysis` | Risk register + worst case |
+| `/strategic-planning 1y` | Tujuan, prioritas, OKR |
+| `/founder-decision-review record\|review\|patterns` | Decision history |
 
-## Upstream
+## Terhubung dengan ekosistem Loonars
 
-Dibangun di atas [founder-skill](https://github.com/Jakeschincariol/founder-skill)
-oleh Jake Schincariol (MIT License, commit `fd9385b`). Upstream tidak diubah.
-Atribusi dan teks lisensi akan disertakan saat skill di-vendor (Phase 2).
-Proyek ini tidak berafiliasi dengan upstream maupun tokoh yang framework-nya
-diringkas oleh upstream.
+```
+villa (operasi L1) ─► mkh-properti (AI CFO) ◄─ Mkhsistem (MK Connect, FRIDAY)
+                              │  read-only
+                              ▼
+                     Istri — Loonars AI Advisor
+```
 
-## Catatan riwayat repo
+- **AI CFO MKH Property** = sumber angka keuangan aktual & forecast. Seat CFO
+  board mengutip putusannya (`AMAN / WASPADA / TIDAK MENYARANKAN`).
+- **villa** = bagaimana bisnis berjalan (booking, okupansi, operasional).
+- **Mkhsistem** = FRIDAY Holding (kontrak `BusinessSnapshot` dipakai ulang),
+  CRM, unit, konstruksi, HR, WA.
+- Semua akses read-only. Sekarang lewat ekspor/tempelan manual; endpoint baca
+  khusus advisor dirancang untuk Phase 5.
+  Detail: [`docs/integrations/`](docs/integrations/00-ekosistem-loonars.md).
 
-Repo ini sebelumnya berisi aplikasi **Catatanku**. Aplikasi itu tidak dihapus
-dari Git: masih utuh di branch `claude/reminder-finance-app-yveciz` dan di
-riwayat commit. Jangan merge branch Loonars AI Advisor ke branch tersebut.
+## Struktur
 
-## Bukan nasihat profesional
+```
+docs/            master instruction, phase-1 (audit, arsitektur, roadmap), standards, integrations
+.claude/skills/  11 skill advisor (board punya 8 seat di seats/)
+tools/finance/   hospitality.py, investment.py, unit_economics.py (adaptasi), money.py
+tools/panel/     panel.py, van_westendorp.py (adaptasi founder-skill)
+tools/adapters/  kontrak data read-only + ManualSnapshotSource + stub Phase 5
+knowledge-base/  memori perusahaan (berlabel; angka sensitif tidak di repo)
+decisions/       decision history (CONFIRMED hanya oleh founder)
+analyses/        hasil analisis per topik
+vendor/          founder-skill @ fd9385b, tidak diubah
+tests/           unit test tool & struktur repo
+```
 
-Output sistem ini adalah analisis pendukung keputusan, bukan nasihat finansial,
-hukum, investasi, atau pajak. Hasil simulasi adalah data sintetis, bukan
-prediksi pasti.
+## Tes
+
+```bash
+cd tests && python3 -m unittest test_finance test_adapters test_repo
+python3 -m unittest test_adapted_upstream   # menjalankan kode turunan upstream
+```
+
+## Penting
+
+- **Repo ini publik.** Angka keuangan aktual dan data pribadi tidak di-commit;
+  simpan di `private/` (di-ignore) sampai repo dibuat private.
+- Bukan nasihat finansial, hukum, investasi, atau pajak. Simulasi = data
+  sintetis, bukan prediksi pasti.
+- Aplikasi Catatanku lama tetap di branch `claude/reminder-finance-app-yveciz`;
+  jangan merge branch advisor ke sana.
+
+Upstream: [founder-skill](https://github.com/Jakeschincariol/founder-skill)
+(MIT, Jake Schincariol) — lihat `THIRD_PARTY_NOTICES.md`.

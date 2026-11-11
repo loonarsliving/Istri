@@ -2,16 +2,19 @@
 
 Jawaban di bawah dibutuhkan sebelum / selama Phase 2. Jangan diisi oleh AI.
 
-## Prioritas tinggi (penentu arsitektur)
+## Prioritas tinggi
 
-1. **ADR-1..5** di `02-architecture.md`: setuju dengan rekomendasi (skill-first,
-   vendor upstream, pakai repo ini + rename, `knowledge-base/` + `analyses/`,
-   repo private)?
-2. **Visibilitas repo**: apakah repo ini private? (Wajib private sebelum data
-   keuangan masuk.)
-3. **Nama repo**: rename `Istri` → `loonars-ai-advisor`? (Catatanku tetap aman
-   di branch `claude/reminder-finance-app-yveciz`; sebaiknya pindahkan ke repo
-   sendiri agar tidak tercampur.)
+1. ~~ADR-1..5~~ — disetujui 2026-11-11 ("lanjutkan semua").
+2. **Visibilitas repo — TERJAWAB OLEH CEK: repo `Istri` PUBLIC** (juga `villa`,
+   `Mkhsistem`, `mkh-properti`). Mau dibuat private? Sampai itu, angka aktual
+   tidak di-commit.
+3. ~~Nama repo~~ — tetap `Istri`, rename setelah selesai.
+3b. **Izin eksekusi kode upstream**: boleh menjalankan test founder-skill dan
+   tool turunannya (`panel.py`, `unit_economics.py`)? Dibutuhkan untuk P2-1
+   dan untuk consumer panel.
+3c. **Endpoint advisor di mkh-properti** (`docs/integrations/01-ai-cfo.md`):
+   setuju dibangun di Phase 5?
+3d. **Batas keputusan wajib ke board**: nominal berapa?
 4. **Lisensi kode Loonars**: proprietary (rekomendasi) atau lainnya?
 5. **Mata uang & bahasa**: IDR sebagai default? Output dalam Bahasa Indonesia,
    Inggris, atau campuran?
