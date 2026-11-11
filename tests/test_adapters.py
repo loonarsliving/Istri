@@ -81,6 +81,31 @@ class Adapters(unittest.TestCase):
         finally:
             srv.shutdown()
 
+    def test_ai_cfo_wrong_secret_is_reported_as_refused(self):
+        import http.server
+        import threading
+
+        class H(http.server.BaseHTTPRequestHandler):
+            def do_POST(self):
+                self.send_response(401)
+                self.end_headers()
+
+            def log_message(self, *a):
+                pass
+
+        srv = http.server.HTTPServer(("127.0.0.1", 0), H)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        try:
+            env = {"LOONARS_ENABLE_LIVE_SOURCES": "1", "LOONARS_AI_CFO_SECRET": "s" * 40,
+                   "LOONARS_AI_CFO_URL": "http://127.0.0.1:%d/x" % srv.server_port}
+            r = sources.AiCfoSource(env).fetch("fakta")
+            self.assertEqual(r.health, "unreachable")
+            self.assertEqual(r.rows, [])
+            self.assertIn("401", r.note)
+            self.assertIn("ditolak", r.note)
+        finally:
+            srv.shutdown()
+
     def test_ai_cfo_unreachable_is_not_zero(self):
         env = {"LOONARS_ENABLE_LIVE_SOURCES": "1", "LOONARS_AI_CFO_SECRET": "s" * 40,
                "LOONARS_AI_CFO_URL": "http://127.0.0.1:9/none"}

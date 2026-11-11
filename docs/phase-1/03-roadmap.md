@@ -9,7 +9,7 @@ acceptance criteria fase sebelumnya.** Status dicatat di tabel bawah.
 | Phase 2 — Foundation | **Dikerjakan** (lihat checklist) |
 | Phase 3 — Advisory Engine | **Dikerjakan** (skill & tool; uji nyata menunggu data) |
 | Phase 4 — Testing | Belum dimulai |
-| Phase 5 — Future Integration (desain) | Belum dimulai |
+| Phase 5 — Future Integration | **Sebagian**: AI CFO aktif & teruji di produksi; FRIDAY Holding & villa masih desain |
 
 ## Phase 1 — Audit
 
@@ -80,7 +80,7 @@ Acceptance criteria:
 - [ ] P4-3 Founder menilai tiap output (berguna / tidak, kritis cukup / tidak) — dicatat.
 - [ ] P4-4 Daftar perbaikan dari hasil uji dibuat dan diprioritaskan.
 
-## Phase 5 — Future Integration (desain saja)
+## Phase 5 — Future Integration (AI CFO aktif; lainnya desain)
 
 Acceptance criteria:
 - [ ] P5-1 Dokumen desain per sumber (MKH, Supabase, Cloudbeds, OTA, laporan keuangan & operasional): dataset, field, frekuensi, pemilik, cara akses read-only.

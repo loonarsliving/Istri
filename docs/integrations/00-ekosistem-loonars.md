@@ -54,8 +54,8 @@ berbeda.
 
 | Tahap | Cara | Status |
 | --- | --- | --- |
-| A — sekarang | Founder bertanya ke AI CFO (WA `ai_cfo` atau `/cfo/chat`), lalu menempel jawaban + tanggal ke `analyses/<slug>/inputs/ai-cfo.md`. Adapter `ManualSnapshotSource` membacanya. | Siap dipakai |
-| B — Phase 5 | Endpoint baca khusus di mkh-properti (usulan `POST /api/cfo/advisor`, keluaran = `JawabanCfo` + `fakta[]` + `HasilEvaluasi`), auth rahasia terpisah khusus advisor, **hanya baca**. Adapter `AiCfoSource`. | Desain saja — butuh perubahan di repo mkh-properti + persetujuan owner |
+| A — cadangan | Founder bertanya ke AI CFO (WA `ai_cfo` atau `/cfo/chat`), lalu menempel jawaban + tanggal ke `analyses/<slug>/inputs/ai-cfo.md`. Adapter `ManualSnapshotSource` membacanya. | Siap dipakai |
+| B — **aktif** | `POST finance.haluoleo.id/api/cfo/advisor` (mkh-properti #61/#63, migrasi 0072): fakta, jawaban deterministik, CEO challenger; rahasia khusus advisor; **hanya baca**. `AiCfoSource` / `tools/adapters/ai_cfo.py`. | Aktif sejak 2026-11-11, diuji di produksi |
 
 ## 3. Villa — "bagaimana bisnis berjalan"
 

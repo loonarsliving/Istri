@@ -210,8 +210,9 @@ class DataSource(Protocol):
   `retrieved_at`, `label` (ACTUAL/HISTORICAL). → traceability.
 - Phase 2: `ManualSnapshotSource` membaca ekspor/tempelan (JSON/Markdown) di
   `private/data/` atau `analyses/<slug>/inputs/`.
-- Phase 5 (stub, melempar `NotImplementedError`): `AiCfoSource` (mkh-properti),
-  `FridayHoldingSource` (MK Connect, kontrak `BusinessSnapshot`), `VillaSource`,
+- **Aktif** (2026-11-11): `AiCfoSource` → `POST finance.haluoleo.id/api/cfo/advisor`
+  (hanya baca; CLI `tools/adapters/ai_cfo.py`).
+- Phase 5 (stub, melempar `NotImplementedError`): `FridayHoldingSource` (MK Connect, kontrak `BusinessSnapshot`), `VillaSource`,
   `SupabaseSource`, `CloudbedsSource`, `OtaSource`. **Tidak ada koneksi
   produksi** sampai founder menyetujui.
 - Tidak ada method `write/update/delete` di interface — read-only by design.

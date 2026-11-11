@@ -109,6 +109,10 @@ class AiCfoSource(DataSource):
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as res:
                 d = json.loads(res.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            # Reached the server but was refused or failed: say so, never return data.
+            why = "akses ditolak (rahasia advisor tidak cocok)" if e.code in (401, 403) else "galat server"
+            return unreachable("ai_cfo", dataset, "AI CFO menjawab HTTP %d: %s" % (e.code, why), period)
         except (urllib.error.URLError, OSError, ValueError) as e:
             # Not reachable is not zero: report it as unreachable, never as data.
             return unreachable("ai_cfo", dataset, "AI CFO tidak terbaca: %s" % e, period)

@@ -1,11 +1,9 @@
 # Patch mkh-properti: endpoint AI CFO hanya-baca untuk Advisor
 
-> **Status 2026-11-11: TERPASANG.** mkh-properti PR #61 (merge `fea6568`), migrasi 0072 diterapkan ke `gluoioi…` dan diverifikasi. Endpoint menunggu secret Vault. File di bawah adalah arsip patch.
+> **Status 2026-11-11: TERPASANG.** mkh-properti PR #61 (merge `fea6568`), migrasi 0072 diterapkan ke `gluoioi…` dan diverifikasi. Secret Vault dibuat Claude (dibangkitkan di database), perbaikan 401 palsu di PR #63, uji produksi fakta/tanya/evaluasi lulus. File di bawah adalah **arsip** patch awal; kode yang berlaku ada di repo mkh-properti.
 
 Disiapkan 2026-11-11 atas persetujuan owner ("silahkan, selama endpoint
-advisor itu tidak merusak sistem yang sudah bekerja"). Sesi pembuatnya tidak
-punya akses push ke `loonarsliving/mkh-properti`, jadi patch disimpan di sini
-untuk dipasang di sesi yang punya akses (atau oleh owner).
+advisor itu tidak merusak sistem yang sudah bekerja").
 
 Basis: mkh-properti `main` @ `b09fd2a` (migrasi terakhir 0071).
 
