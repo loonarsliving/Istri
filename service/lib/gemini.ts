@@ -26,6 +26,10 @@ export interface OpsiModel {
   percobaan?: number;
   /** Batas token keluaran (default CONFIG.maxOutputTokens). */
   maksToken?: number;
+  /** Batas waktu per panggilan (default CONFIG.timeoutMs). */
+  timeoutMs?: number;
+  /** Tingkat berpikir model utama (default CONFIG.thinkingLevel). */
+  thinkingLevel?: "MINIMAL" | "LOW" | "MEDIUM" | "HIGH";
 }
 
 let client: GoogleGenAI | null = null;
@@ -62,13 +66,13 @@ async function sekali(model: string, sistem: string, pengguna: string, thinking:
     temperature: 0.4,
     maxOutputTokens: opsi.maksToken ?? CONFIG.maxOutputTokens,
     // Model 3.x memakai thinkingLevel (UPPERCASE). Advisor: HIGH (MK Connect: MINIMAL).
-    thinkingConfig: thinking ? { thinkingLevel: CONFIG.thinkingLevel } : { thinkingLevel: "MINIMAL" },
+    thinkingConfig: thinking ? { thinkingLevel: opsi.thinkingLevel ?? CONFIG.thinkingLevel } : { thinkingLevel: "MINIMAL" },
   };
   if (opsi.json) config.responseMimeType = "application/json";
   if (opsi.cari) config.tools = [{ googleSearch: {} }];
   const res = await Promise.race([
     ai().models.generateContent({ model, contents: [{ role: "user", parts: [{ text: pengguna }] }], config }),
-    new Promise<never>((_, rej) => setTimeout(() => rej(new Error(`timeout ${CONFIG.timeoutMs} ms`)), CONFIG.timeoutMs)),
+    new Promise<never>((_, rej) => setTimeout(() => rej(new Error(`timeout ${opsi.timeoutMs ?? CONFIG.timeoutMs} ms`)), opsi.timeoutMs ?? CONFIG.timeoutMs)),
   ]);
   const teks = (res.text ?? "").trim();
   if (!teks) throw new Error("jawaban kosong dari model");

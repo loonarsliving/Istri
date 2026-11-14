@@ -50,6 +50,15 @@ bergerbang rahasia. Keputusan repo D-2026-001…007 diimpor sekali (`sumber = re
 | `advisor riset: …` | Google Search grounding; URL sumber dari metadata, bukan tulisan model |
 | `advisor detail N` · `advisor dokumen` · `advisor syarat` · `advisor syarat selesai N` | baca/ubah register tanpa AI |
 
+| `advisor strategi harga` | D-2026-011: data MK Connect `POST /api/advisor/harga` (okupansi 30 hari & OTB 3 bulan, ADR, RevPAR, harga 30 hari, kompetitor 60 hari, setelan mesin, musim ramai; PL & EL) + fakta AI CFO → strategi per tipe kamar dalam persen; WA owner. **Tidak menulis harga** (autopush mesin villa menyala). Otomatis Senin 06:43 WIB (`/api/advisor/strategi-harga`) |
+| `advisor lokasi` | D-2026-011: riset area DIY (Google Search, URL dari metadata) + RAB acuan & kesiapan ekspansi dari fakta AI CFO → WA owner; saran survei ke Kepala Cabang Jogja (`advisor_pengaturan.vando_wa`) hanya saat kesiapan menjadi SIAP, sekali per transisi (`ekspansi_siap_dikirim`). Otomatis tanggal 15 09:23 WIB (`/api/advisor/lokasi`) |
+
+Otak AI CFO (D-2026-011): `POST /api/advisor/cfo` dipanggil server MKH Property untuk narasi AI CFO Chat.
+Header `x-mkh-cfo-ts` + `x-mkh-cfo-sig` = HMAC-SHA256(`ai-cfo-otak|ts|sha256(body)`) dengan
+`advisor_shared_secret`, dibuat RPC `cfo_tanda_advisor` (mkh-properti migrasi 0076); diverifikasi di sini
+dengan `LOONARS_AI_CFO_SECRET` (nilai sama, tanpa env baru), batas 5 menit. Gemini Pro thinking MEDIUM,
+45 dtk, penjaga angka; angka tak berdasar → 422 → MKH Property memakai cadangan MK Connect.
+
 Pengingat: `/api/advisor/pengingat` (cron harian) → WA ke nomor owner terakhir
 (`advisor_pengaturan.owner_wa`) bila ada syarat ≤3 hari atau keputusan waktunya ditinjau.
 Biaya kasar: satu sidang ringkas ≈ 4 panggilan Pro, sidang/rapat 14 kursi ≈ 15 panggilan
