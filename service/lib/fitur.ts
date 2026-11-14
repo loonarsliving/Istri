@@ -5,6 +5,8 @@ import { CONTENT } from "./content.generated";
 import { ambilHospitality, contohChatSebagaiTeks, hospitalitySebagaiTeks, type HasilHospitality } from "./hospitality";
 import { bacaJson, tanyaModel, type TanyaModel } from "./gemini";
 import { MENU, bersihkanAwalan, daftarKeputusan, daftarKeputusanDb, jawab, kumpulkanKonteks, teksKonteks, type DepsMentor } from "./mentor";
+import { ambilHarga, kirimSaranVando, risetLokasi, strategiHarga, type DepsStrategi, type HasilHarga } from "./strategi";
+import { kirimWa } from "./wa";
 import { KATEGORI_MEMORI, register, type KategoriMemori, type Keputusan, type Register } from "./register";
 
 /**
@@ -16,6 +18,19 @@ export interface DepsFitur extends DepsMentor {
   reg: Register;
   hariIni: () => string;
   ambilHospitality?: (hari?: number) => Promise<HasilHospitality>;
+  ambilHarga?: () => Promise<HasilHarga>;
+  kirimWa?: (nomor: string, pesan: string) => Promise<boolean>;
+}
+
+export function depsStrategi(deps: DepsFitur): DepsStrategi {
+  return {
+    tanyaModel: deps.tanyaModel,
+    ambilFaktaCfo: () => deps.ambilFaktaCfo(),
+    ambilHarga: deps.ambilHarga ?? (() => Promise.resolve<HasilHarga>({ tersedia: false, catatan: "tidak dikonfigurasi" })),
+    daftarMemori: deps.daftarMemori,
+    simpanDokumen: (jenis, judul, isi) => deps.reg.dokumenSimpan(jenis, judul, isi),
+    hariIni: deps.hariIni,
+  };
 }
 
 export function depsBawaan(): DepsFitur {
@@ -28,6 +43,8 @@ export function depsBawaan(): DepsFitur {
     daftarKeputusan: () => reg.daftar(),
     daftarMemori: () => reg.memoriDaftar(),
     ambilHospitality: (hari) => ambilHospitality(hari),
+    ambilHarga: () => ambilHarga(),
+    kirimWa: (nomor, pesan) => kirimWa(nomor, pesan),
     hariIni: () => new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Jakarta" }),
   };
 }
@@ -50,6 +67,8 @@ export type Perintah =
   | { jenis: "memori" }
   | { jenis: "memori_ubah"; id: number | "semua"; status: "aktif" | "arsip" }
   | { jenis: "rapat" }
+  | { jenis: "harga" }
+  | { jenis: "lokasi" }
   | { jenis: "bebas"; teks: string };
 
 const ALIAS_KATEGORI: Record<string, KategoriMemori> = {
@@ -93,6 +112,8 @@ export function kenali(pesanMentah: string): Perintah {
   m = /^(sahkan|lupakan|arsipkan)\s+memori\s+(#?\d+|semua)$/i.exec(t);
   if (m) return { jenis: "memori_ubah", id: m[2] === "semua" ? "semua" : Number(m[2].replace("#", "")), status: m[1] === "sahkan" ? "aktif" : "arsip" };
   if (/^rapat( direksi| board)?( bulanan)?$/.test(t)) return { jenis: "rapat" };
+  if (/^(strategi )?harga( villa)?$/.test(t)) return { jenis: "harga" };
+  if (/^(lokasi|ekspansi|lokasi (baru|berikutnya)|riset lokasi)$/.test(t)) return { jenis: "lokasi" };
   return { jenis: "bebas", teks: p };
 }
 
@@ -211,6 +232,13 @@ export async function proses(pesanMentah: string, deps: DepsFitur = depsBawaan()
     }
     case "rapat":
       return rapat(deps);
+    case "harga":
+      return bagiPesan((await strategiHarga(depsStrategi(deps))).teks);
+    case "lokasi": {
+      const h = await risetLokasi(depsStrategi(deps));
+      const keVando = deps.kirimWa ? await kirimSaranVando(h, deps.reg, deps.kirimWa, deps.hariIni()).catch(() => false) : false;
+      return bagiPesan(h.teksOwner + (keVando ? "\n\n📨 Saran survei sudah dikirim ke Kepala Cabang Jogja." : ""));
+    }
     case "bebas":
       return [(await jawab(cmd.teks, deps)).teks];
   }

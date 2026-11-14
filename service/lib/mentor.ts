@@ -35,6 +35,10 @@ export const MENU = [
   "• advisor memori — memori aktif & usulan direksi",
   "• advisor sahkan memori 5 / semua · advisor lupakan memori 5",
   "",
+  "*CFO & pertumbuhan* (pakai awalan *advisor*)",
+  "• advisor strategi harga — okupansi, ADR, posisi vs kompetitor, arah harga per tipe kamar (otomatis tiap Senin; harga tidak diubah)",
+  "• advisor lokasi — riset area DIY untuk Loonars berikutnya + kesiapan keuangan AI CFO (otomatis tiap tanggal 15; saran ke Kepala Cabang Jogja bila keuangan SIAP)",
+  "",
   "*Lainnya* (pakai awalan *advisor*)",
   "• advisor riset: <topik> — riset pasar dengan sumber",
   "• advisor detail 12 — isi lengkap dokumen/sidang",
@@ -65,7 +69,7 @@ export function daftarKeputusanDb(daftar: Keputusan[]): string {
   return ["📋 *Keputusan tercatat*", ...baris].join("\n");
 }
 
-function gabung(files: ContentFile[], maks = 60000): string {
+export function gabung(files: ContentFile[], maks = 60000): string {
   const out: string[] = [];
   let n = 0;
   for (const f of files) {

@@ -4,6 +4,8 @@
   "buildCommand": "npm run build",
   "crons": [
     { "path": "/api/advisor/pengingat", "schedule": "17 0 * * *" },
-    { "path": "/api/advisor/rapat-bulanan", "schedule": "17 1 1 * *" }
+    { "path": "/api/advisor/rapat-bulanan", "schedule": "17 1 1 * *" },
+    { "path": "/api/advisor/strategi-harga", "schedule": "43 23 * * 0" },
+    { "path": "/api/advisor/lokasi", "schedule": "23 2 15 * *" }
   ]
 }
